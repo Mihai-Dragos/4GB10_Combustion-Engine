@@ -1,4 +1,4 @@
-# 4GB10_Combustion-Engine
+# 4GB10_Combustion-Engine (Team 007)
 This is the Github repository of Team 007 where all the Files used in the project are stored.
 Additionally there is an issue page that corresponds to the tasks made in the Trello Board. 
 
