@@ -57,8 +57,8 @@ AF              = 80                        % [-]       Air to fuel ratio - dete
 %%
 % using the percentage of fuel by mass Check if this is the case because i
 % can not find it explained on the internet 1,2,3
-Yfuel5  =[0.05 0.95 0 0 0 0];
-Yfuel10 = [0.10 0.9 0 0 0 0];
+Yfuel5  =[0.05 0.95 0 0 0 0];               % E5
+Yfuel10 = [0.10 0.9 0 0 0 0];               % E10
 
 %% 1-2 Air in take - isobaric
 P1 = Pamb;
@@ -66,21 +66,24 @@ T1 = Tamb;
 P2 = P1;
 V2 = 196*cm3;
 r = 2.5;
-V1 = V2/r; 
+V1 = V2/r;
+
+% r = V2/V1
 
 % Using Ideal Gas Law it is possible to determine temp P1*V1/T1 = P2*V2/T2
+% d = 
 
-T2 = T1*V2/V1
+T2 = T1*V2/V1  % T2 = T1 * r
 
-%%
-mairrate      	= mfurate*AF;               % [kg/s]    Air rate coming into the carb
-minrate         = mairrate + mfurate;       % {kg/s]    Rate of intake air
+%% 2-3 Adiabatic compression
+mairrate      	 = mfurate*AF;               % [kg/s]    Air rate coming into the carb
+mrate_in         = mairrate + mfurate;       % {kg/s]    Rate of intake air
 
 mO2rate_in              = mairrate*Yair(6);     % [kg/s]
 mN2rate_in              = mairrate*Yair(5);     % [kg/s]
 mC2H5OHrate_in          = mfurate*Yfuel10(1);
 mGASOLINErate_in        = mfurate*Yfuel10(2);
-Ypre_comb               = [mC2H5OHrate_in, mGASOLINErate_in, 0, 0, mN2rate_in, mO2rate_in]./minrate; %mass fraction
+Ypre_comb               = [mC2H5OHrate_in, mGASOLINErate_in, 0, 0, mN2rate_in, mO2rate_in]./mrate_in; %mass fraction
 
 % moles
 MoleO2rate_in = mO2rate_in/Mi(6);
@@ -92,35 +95,52 @@ Xpre_comb =[MoleGASOLINErate_in, MoleC2H5OHrate_in, 0, 0, MoleN2rate_in, MoleO2r
 Mpre_comb = Xpre_comb*Mi';
 Rpre_comb = Runiv/Mpre_comb';
 
-Delta_V = V2 - V1;
-steps =  10000;
+V3 = V1;
+Delta_V = V2 - V3;
+steps =  1000;
 dV = Delta_V/steps;
 V23(1) = V2;
-T23(1) = T2;
+T23(1) = T1; %T2
 P23(1) = P2;
+
 for i=2:steps+1;
     for ii = 1:NElements
        Cp(ii) = CpNasa(T23(i-1), Elements(ii));
        Cv(ii) = CvNasa(T23(i-1), Elements(ii));
     end
-    Cp23 = Cp*Ypre_comb';
-    Cv23 = Cv*Ypre_comb';
-    k(i) = Cp23/Cv23;
+    Cp23(i) = Cp*Ypre_comb';
+%     Cv23 = Cp*Xpre_comb';
+    Cv23(i) = Cv*Ypre_comb';
+    R(i) = Cp23(i) - Cv23(i);
+    k(i) = Cp23(i)/Cv23(i);
     V23(i) = V23(i-1) - dV;
     T23(i) = T23(i-1)*(V23(i-1)/V23(i))^(k(i)-1);
-    P23(i) = P23(i-1)*(V23(i)/V23(i-1))^(k(i));
+    P23(i) = P23(i-1)*(V23(i-1)/V23(i))^(k(i));
+%     T23(i) =  T23(i-1)*exp(Rpre_comb/Cv23(i))*(V23(i-1)/V23(i));
 end
-V3 = V1;
-check = V23(steps+1) - V3
+
+check = V23(steps+1) - V3;
 T3 = T23(steps+1)
-P3 = P23(steps+1)
+P3 = P23(steps+1)/kPa
+%%
+
+% ds = cv ln(T2/T1) + R ln(v2/v1)
+
+% cv(T) ln(T2/T1) =  R ln(V1/V2) --> T2 = T1*e^(R/Cv)*(V1/V2)
+
+%s2 - s1  = 0
+
+%s2 - sref = SNasa(T2) -Rln(P2/Pref)
+%s1 - sref = SNasa(T1) -Rln(p1/Pref)
+
+
 %% 3-4 Combustion - isochoric
 
 %==========================================================================
 
 % Q = W + dU
 % For isochoric no work is being done
-% Q = dU
+% Q = dU = U4-U3
 
 %==========================================================================
 
@@ -140,23 +160,78 @@ U3 = u3*Ypre_comb'
 % Stoichemetric relations
 
 % C2H5OH + 3*O2 ? 2*CO2 + 3*H2O 
+
 % C8H18 + 12.5*O2 ? 8*CO2 +9*H2O
 
 %==========================================================================
-mH2Orate_out = 3*Mi(3)/Mi(1)*mGASOLINErate_in + 9*Mi(3)/Mi(2)*mC2H5OHrate_in;
-mO2rate_out = mO2rate_in - 3*Mi(6)/Mi(1)*mGASOLINErate_in - 12.5*Mi(6)/Mi(2)*mC2H5OHrate_in;
-mCO2rate_out = 2*Mi(4)/Mi(1)*mGASOLINErate_in + 8*Mi(4)/Mi(2)*mC2H5OHrate_in;
+mH2Orate_out = 3*Mi(3)/Mi(1)*mC2H5OHrate_in + 9*Mi(3)/Mi(2)*mGASOLINErate_in;
+mO2rate_out = mO2rate_in - 3*Mi(6)/Mi(1)*mC2H5OHrate_in - 12.5*Mi(6)/Mi(2)*mGASOLINErate_in;
+mCO2rate_out = 2*Mi(4)/Mi(1)*mC2H5OHrate_in + 8*Mi(4)/Mi(2)*mGASOLINErate_in;
 mN2rate_out = mN2rate_in;
 moutrate = [0 0 mH2Orate_out mCO2rate_out, mN2rate_out, mO2rate_out];
-check = sum(moutrate) - minrate;
+check = sum(moutrate) - mrate_in;
 Yafter_comb = moutrate/sum(moutrate);
 
-Hpre_comb = h_comb*Ypre_comb';
-Hafter_comb = h_comb*Yafter_comb';
-Q_comb = Hafter_comb - Hpre_comb
+hpre_comb = h_comb*Ypre_comb';
+hafter_comb = h_comb*Yafter_comb';
+Q_comb = hafter_comb - hpre_comb
 
 U4 = U3 + Q_comb;
 Uafter_comb = ui*Yafter_comb';
 T4 = interp1(Uafter_comb,TR,U4)
 
+T34(1) = T3;
+P34(1) = P3*kPa;
+V34(1) = V3;
+for i = 2:steps+1
+    for ii =1:NElements
+        Cv(ii) =CvNasa(T34(i-1), Elements(ii));
+    end
+    Cv34(i) = Cv*Yafter_comb';
+    T34(i) = -Q_comb/steps/(Cv34(i)) +T34(i-1);
+    V34(i) = V3;
+    P34(i) = P34(i-1)*T34(i)/T34(i-1);
+end
+T4= T34(steps+1)
+P4 = P34(steps+1)
+% p3/T3 = P4/T4
+
 %%
+V4 = V3;
+V5 = V2;
+Delta_V = V5 - V4;
+steps =  1000;
+dV = Delta_V/steps;
+V45(1) = V4;
+T45(1) = T4; %T2
+P45(1) = P4;
+
+for i=2:steps+1;
+    for ii = 1:NElements
+       Cp(ii) = CpNasa(T45(i-1), Elements(ii));
+       Cv(ii) = CvNasa(T45(i-1), Elements(ii));
+    end
+    Cp45(i) = Cp*Yafter_comb';
+%     Cv23 = Cp*Xpre_comb';
+    Cv45(i) = Cv*Yafter_comb';
+    R(i) = Cp45(i) - Cv45(i);
+    k(i) = Cp45(i)/Cv45(i);
+    V45(i) = V45(i-1) + dV;
+    T45(i) = T45(i-1)*(V45(i-1)/V45(i))^(k(i)-1);
+    P45(i) = P45(i-1)*(V45(i-1)/V45(i))^(k(i));
+%     T23(i) =  T23(i-1)*exp(Rpre_comb/Cv23(i))*(V23(i-1)/V23(i));
+end
+
+check = V45(steps+1) - V4;
+T5 = T45(steps+1)
+P5 = P45(steps+1)
+
+%%
+P56(1) = P5
+Delta_P = (P5- P2)
+dP = Delta_P/steps
+V56(1) = V5;
+for i=2:steps
+  V56(i) = V5;
+  P56(i) = P56(i-1) - dP;
+end
