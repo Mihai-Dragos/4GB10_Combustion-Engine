@@ -75,6 +75,8 @@ V1 = V2/r;
 
 T2 = T1*V2/V1  % T2 = T1 * r
 
+
+
 %% 2-3 Adiabatic compression
 mairrate      	 = mfurate*AF;               % [kg/s]    Air rate coming into the carb
 mrate_in         = mairrate + mfurate;       % {kg/s]    Rate of intake air
@@ -235,3 +237,6 @@ for i=2:steps
   V56(i) = V5;
   P56(i) = P56(i-1) - dP;
 end
+
+%%
+hold on; plot(V23, P23); plot(V34, P34); plot(V45, P45); plot(V56, P56);
