@@ -135,7 +135,7 @@ SensibleHeatLoss    = cpexh * ( Texh - Tamb ) * mdotexh; %[J/cycle]; heat lost d
 %Part IV: Results
 
 %rewriting the first equation
-%Wdot                = ChemicalBondEnergy - SensibleHeatLoss; %[J/cycle]; work done by the engine each cycle
+Wdot                = 3300; %ChemicalBondEnergy - SensibleHeatLoss; %[J/cycle]; work done by the engine each cycle
 
 %bsfc                = mdotfuel / Power * 1000 / 3600000 ; %[g/kWhr]; brake specific fuel consumption
 %SPi                = mdot(OF YOUR SPECIFIC FUEL TYPE) / Power * 1000 / 3600000 %[g/kWhr];
@@ -151,37 +151,76 @@ AirPressure = 100960; %[N/m^2] atmospheric pressure
 %table
 %           p           V           T
 %   1       p1          V1          Tamb
-%   2                   V2
-%   3                   V2
+%   2       p2          V2          T2
+%   3       p3          V2          T3
 %   4       pamb        V1          Texh
 
+%THIS MUST BE CHANGED
 pamb = AirPressure;
-cpT1 = CpNasa(Tamb, Sp(55) ); %55 corresponds to gasoline
-cpT1 = CpNasa(Tamb, Sp(55) );
+
+molarmassAir = 28.9647; %[g/mol] https://www.engineeringtoolbox.com/molecular-mass-air-d_679.html
+mmRatioWater = y / 2 * 18.02 / molarmassFuel;%[ratio] the mass of the formed water with respect to the fuel
+mmRatioCO2 = x * 44.01 / molarmassFuel; %[ratio] the mass of the formed carbon dioxide with respect to the fuel
+
+cpT1 = AFstoi * CpNasa(Tamb, Sp(55) ) + (1 - AFstoi) * (0.78 * CpNasa(Tamb, Sp(48)) + 0.21 * CpNasa(Tamb, Sp(4)) + 0.01 * CpNasa(Tamb, Sp(49))); %55 corresponds to gasoline, 48 = N2, 4 = O2, 49 = Ar
+cvT1 = AFstoi * CvNasa(Tamb, Sp(55) ) + (1 - AFstoi) * (0.78 * CvNasa(Tamb, Sp(48)) + 0.21 * CvNasa(Tamb, Sp(4)) + 0.01 * CvNasa(Tamb, Sp(49)));
+cpTexh = AFstoi * mmRatioWater * CpNasa(Texh, Sp(6) ) + AFstoi * mmRatioCO2 * CpNasa(Texh, Sp(16) ) + (1 - AFstoi) * (0.78 * CpNasa(Texh, Sp(48)) + 0.01 * CpNasa(Texh, Sp(49))); %55 corresponds to gasoline
+cvTexh = AFstoi * mmRatioWater * CvNasa(Texh, Sp(6) ) + AFstoi * mmRatioCO2 * CvNasa(Texh, Sp(16) ) + (1 - AFstoi) * (0.78 * CvNasa(Texh, Sp(48)) + 0.01 * CvNasa(Texh, Sp(49)));
 
 %Initial
 
-%Step12
-%Adiabatic compression
-%pV^(cp/cv) = constant
-%(p1 * V1)^(cp@T1/cv) = pV^(cp/cv)
+
+%Step41
+%Isochoric release
+%m * cv * (T4 - T1) = Qc
+%p / T = constant
+%p1 = p4 * T1 / T4
+p1 = pamb * Tamb / Texh;
+Qc = cvT1 * ((mdotfuel + mair) / RPM / 0.0167) * (Texh - Tamb);
+Qh = Qc - Wdot;
+%ideal gas law
+V1 = Tamb * 8.314 * ((mdotfuel * 1000 / molarmassFuel + mair * 1000 / molarmassAir) / RPM / 0.0167) / p1;
+%it took me two hours to realise this...
+V2 = V1 - displacementVolume;
+p2 = p1 * V1^(cpT1/cvT1) / V2^(cpT1/cvT1);
+T2 = p2 * V2 / 8.314 / ((mdotfuel * 1000 / molarmassFuel + mair * 1000 / molarmassAir) / RPM / 0.0167);
 
 %Step23
 %Isochoric combustion
 %m * cv * (T2 - T3) = QLHV * mfuel = ChemicalBondEnergy
 %(T2 - T3) = ChemicalBondEnergy / m / cv
-%(T2 - T3) = ChemicalBondEnergy / mdotfuel / cv@T2
+cvT2 = AFstoi * CvNasa(T2, Sp(55) ) + (1 - AFstoi) * (0.78 * CvNasa(T2, Sp(48)) + 0.21 * CvNasa(T2, Sp(4)) + 0.01 * CvNasa(T2, Sp(49)));
+T3 = T2 - ChemicalBondEnergy / ((mdotfuel + mair) / RPM / 0.0167) / cvT2;
 %p / T = constant
 %p2 / T2 = p3 / T3
-%p3 = p2 * T3 / T2
+p3 = p2 * T3 / T2;
 
-%Step34
-%Adiabatic expansion
-%pV^(cp/cv) = constant
 
-%Step41
-%Isochoric release
-%m * cv * (T4 - T1) = Qout
-%p / T = constant
-%p1 = p4 * T1 / T4
-p1 = pamb * Tamb / Texh;
+%Graph
+V = V2 : 0.000001 : V1;
+
+figure
+xlabel('V [m^3]');
+ylabel('p [N/m^3]');
+title('p-V diagram theoretical')
+%initial
+plot(V, p1);
+hold on
+%1-2
+p12 = p1 * V1^(cpT1/cvT1) ./ V .^ (cpT1/cvT1);
+plot(V, p12);
+hold on
+%2-3
+p23 = p2 : 0.001 : p3;
+V2matrix(1 : length(p23)) = V2;
+plot(V2, p23);
+hold on
+%3-4
+p34 = pamb * V1^(cpTexh/cvTexh) ./ V .^ (cpTexh/cvTexh);
+plot(V, p34);
+hold on
+%4-1
+p41 = p1 : 0.001 : pamb;
+plot(V1, p41);
+hold off
+grid
