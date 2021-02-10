@@ -6,8 +6,8 @@ clear all;close all;clc
 addpath('General/Nasa'); % Add directory of Nasa routines to Matlab-path
 global Runiv 
 Runiv = 8.314; %universal gas constant
-DBdir = '4GB10_matlab_and_trainingdata\matlab\General\Nasa';
-DBname = 'NasaThermalDatabase.mat';
+DBdir = 'General\Nasa';
+DBname = 'NasaThermalDatabase';
 load(fullfile(DBdir,DBname));
 Sp
 El
@@ -87,7 +87,7 @@ molarmassFuel       = 114.232; %[g/mol] G/MOL, NOT KG/MOL!!! how heavy one mole 
 airDensity          = 101325; %[kg/m^3] density of the air at the specified temperature and elevation without fuel
 
 
-fuelConsumption     = 2.4333 * 10^(-4); %[kg/s] how many kilogrammes of fuel are needed to let the engine operate for one second
+fuelConsumption = 
 molarRatioOxygenFuel= x + y / 4 - z / 2; %[atoms] how many oxygen atoms are needed to completely combust one fuel molecule, may be a fraction.
 ratioNitrogenOxygen = 78.084 / 20.946; %[ratio] mass ratio of nitrogen to oxygen in the air 
 ratioCO2Oxygen      = 0.0407 / 20.946; %[ratio] mass ratio of nitrogen to oxygen in the air 
@@ -123,24 +123,22 @@ ChemicalBondEnergy  = QLHV * mdotfuel; %[J/cycle]; Energy stored in the fuel
 
 %USE NASA TABLE FOR cpexh
 cpexh               = 0; %[J/K]; constant pressure heat capacity of the combustion products
-%At 3000 RPM, the engine provides 4.4 HP which correspons to an exhaust
-%temperature of roughly 205 C
-Texh                = 478.15; %[K]; temperature at the exit of the combustion chambre
+Texh                = 0; %[K]; temperature at the exit of the combustion chambre
 Tamb                = 293.15; %[K]; temperature of the rest of the environment (NOT NECESSARILLY FUEL INTAKE TEMPERATURE)
 
-mdotexh             = mair + mdotfuel; %[kg/cycle]; mass of the air the leaves the combustion chambre (conservation of mass)
+mdotexh             = mair + mdotFuel; %[kg/cycle]; mass of the air the leaves the combustion chambre (conservation of mass)
 SensibleHeatLoss    = cpexh * ( Texh - Tamb ) * mdotexh; %[J/cycle]; heat lost during each cycle (due to passive heat dissipation and such)
 
 %%
 %Part IV: Results
 
 %rewriting the first equation
-%Wdot                = ChemicalBondEnergy - SensibleHeatLoss; %[J/cycle]; work done by the engine each cycle
+Wdot                = ChemicalBondEnergy - Sensible; %[J/cycle]; work done by the engine each cycle
 
-%bsfc                = mdotfuel / Power * 1000 / 3600000 ; %[g/kWhr]; brake specific fuel consumption
+bsfc                = mdotfuel / Power * 1000 / 3600000 ; %[g/kWhr]; brake specific fuel consumption
 %SPi                = mdot(OF YOUR SPECIFIC FUEL TYPE) / Power * 1000 / 3600000 %[g/kWhr];
 %specific emissions
-%efficiencyCarnot    = Wdot * ChemicalBondEnergy; %[ratio]; theoretically highest obtainable efficiency
+efficiencyCarnot    = Wdot * ChemicalBondEnergy; %[ratio]; theoretically highest obtainable efficiency
 
 
 %%
@@ -156,10 +154,9 @@ AirPressure = 100960; %[N/m^2] atmospheric pressure
 %   4       pamb        V1          Texh
 
 pamb = AirPressure;
-cpT1 = CpNasa(Tamb, Sp(55) ); %55 corresponds to gasoline
-cpT1 = CpNasa(Tamb, Sp(55) );
+cp@T1 = 0;
 
-%Initial
+Initial
 
 %Step12
 %Adiabatic compression
