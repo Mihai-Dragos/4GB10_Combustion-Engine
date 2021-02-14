@@ -196,31 +196,47 @@ T3 = T2 - ChemicalBondEnergy / ((mdotfuel + mair) / RPM / 0.0167) / cvT2;
 p3 = p2 * T3 / T2;
 
 
-%Graph
-V = V2 : 0.000001 : V1;
+%Step41
+%Isochoric release
+%m * cv * (T4 - T1) = Qout
+%p / T = constant
+%p1 = p4 * T1 / T4
+p1 = pamb * Tamb / Texh;
 
+%% plots
+
+T12 = linspace(273, 323, 10); %to be replaced with the temperature in step12
+T34 = linspace(323, 373, 10); %to be replaced with the temperature in step34
+Vv1 = linspace(150, 200, 10); 
+[T23,V1m] = ndgrid(T12,Vv1); %to be replaced with the temperature in step23
+[T41,V1m] = ndgrid(T34,Vv1); %to be replaced with the temperature in step41
+R = 0.2871;
+thank_capacity = 0.0031 %m³;
+desity_gasoline = 800 %kg/m³;
+total_mass_fuel = thank_capacity * desity_gasoline; %kg
+m = molarmassFuel  
+% p1 = 7.8378;
+% V1 = 50;
+p = @(T,V) m*R*T./V;
 figure
-xlabel('V [m^3]');
-ylabel('p [N/m^3]');
-title('p-V diagram theoretical')
-%initial
-plot(V, p1);
+surf(T23, V1m, p(T23,V1m))
 hold on
-%1-2
-p12 = p1 * V1^(cpT1/cvT1) ./ V .^ (cpT1/cvT1);
-plot(V, p12);
+surf(T41, V1m, p(T41,V1m))
+hold off
+grid on
+xlabel('T')
+ylabel('V')
+zlabel('p')
+view(90,0)
+figure
+plot(Vv1, p(T12,Vv1), 'LineWidth',2)
 hold on
-%2-3
-p23 = p2 : 0.001 : p3;
-V2matrix(1 : length(p23)) = V2;
-plot(V2, p23);
-hold on
-%3-4
-p34 = pamb * V1^(cpTexh/cvTexh) ./ V .^ (cpTexh/cvTexh);
-plot(V, p34);
-hold on
-%4-1
-p41 = p1 : 0.001 : pamb;
-plot(V1, p41);
+plot(Vv1, p(T34,Vv1), 'LineWidth',2)
+plot(Vv1(1)*[1 1], p([T12(1) T12(end)],[1 1]*Vv1(1)), '-g', 'LineWidth',2)
+plot(Vv1(end)*[1 1], p([T34(1) T34(end)],[1 1]*Vv1(end)), '-g', 'LineWidth',2)
 hold off
 grid
+xlabel('V')
+ylabel('p')
+axis([125  225    2.0  3.3])
+legend('T12(273 - 323)', 'T34(323 - 373)')
