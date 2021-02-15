@@ -106,8 +106,8 @@ molarmassFuel       = 114.232 * NfuelE5(2) + 30.07 * NfuelE5(1);%[g/mol]    G/MO
 
 fuelConsumption     = 2.4333 * 10^(-4);                         %[kg/s]     how many kilogrammes of fuel are needed to let the engine operate for one second
 molarRatioOxygenFuel= x + y / 4 - z / 2;                        %[atoms]    how many oxygen atoms are needed to completely combust one fuel molecule, may be a fraction.
-ratioNitrogenOxygen = 78.084 / 20.946;                          %[ratio]    mass ratio of nitrogen to oxygen in the air 
-ratioCO2Oxygen      = 0.0407 / 20.946;                          %[ratio]    mass ratio of nitrogen to oxygen in the air 
+ratioNitrogenOxygen = Yair(5) / Yair(6);                        %[ratio]    mass ratio of nitrogen to oxygen in the air 
+ratioCO2Oxygen      = Yair(4) / Yair(6);                        %[ratio]    mass ratio of nitrogen to oxygen in the air 
 %I neglect the other noble gasses present in the air
 AFstoi              = ( molarRatioOxygenFuel * 31.9988 + ratioNitrogenOxygen * molarRatioOxygenFuel * 28.0134 + ratioCO2Oxygen * molarRatioOxygenFuel * 44.01) / (molarmassFuel * 1); 
 
