@@ -1,7 +1,6 @@
 clear all;close all;clc
 
-%%
-%Importing Nasa tables
+%% Importing Nasa tables
 
 addpath('General/Nasa'); % Add directory of Nasa routines to Matlab-path
 global Runiv 
@@ -12,8 +11,7 @@ load(fullfile(DBdir,DBname));
 Sp
 El
 
-%%
-%Importing data
+%% Importing data
 %for now, only example data can be used.
 
 addpath('General');
@@ -39,8 +37,7 @@ for i=1:nFiles
     RevEnd = Data.RevEnds;
 end
 
-%%
-%Specifying dimensions
+%% Specifying dimensions
 
 %INSERT MEASUREMENTS HERE
 
@@ -66,15 +63,13 @@ distancePistonCrankMin  = connectingRodLength + crankRadius; %[m]; minimum dista
 distancePistonTop       = distancePistonCrankMax - distancePistonCrank; %[m]; distance from the piston to the maximum extended position
 volume                  = pi * (bore / 2) ^ 2 * distancePistonTop + deadVolume; %[m^3]; volume compressed by the piston
 
-%%
-%Thermodynamic model:
+%% Thermodynamic model:
 
 %central equation:
 % 0 = Qdot - Wdot + QLHV * mdotfuel - cpexh * ( Texh - Tamb ) * mdotexh
 Qdot                = 0; %[J]; Generated heat, ONLY HOLDS WHEN ADIABATIC
 
-%%
-%Part I: Chemical bond energy
+%% Part I: Chemical bond energy
 
 %CxHyOz + (x + y / 4 - z / 2) O2 + other stuff in the air relative to the oxygen --> xCO2 + y / 2 H2O + other stuff in the air
 %ALL oxygen in the air is burnt up (stoichiometric)
@@ -112,14 +107,12 @@ ChemicalBondEnergy  = QLHV * mdotfuel; %[J/cycle]; Energy stored in the fuel
 %Source molar masses:
 %https://www.engineeringtoolbox.com/molecular-weight-gas-vapor-d_1156.html
 
-%%
-%Part II: Work
+%% Part II: Work
 %Power               = 0; %[J]; Power provided by the engine 
 
 %Wdot                = Power; %[J]; Work done by engine
 
-%%
-%Part III: Sensible heat loss
+%% Part III: Sensible heat loss
 
 %USE NASA TABLE FOR cpexh
 cpexh               = 0; %[J/K]; constant pressure heat capacity of the combustion products
@@ -131,8 +124,7 @@ Tamb                = 293.15; %[K]; temperature of the rest of the environment (
 mdotexh             = mair + mdotfuel; %[kg/cycle]; mass of the air the leaves the combustion chambre (conservation of mass)
 SensibleHeatLoss    = cpexh * ( Texh - Tamb ) * mdotexh; %[J/cycle]; heat lost during each cycle (due to passive heat dissipation and such)
 
-%%
-%Part IV: Results
+%% Part IV: Results
 
 %rewriting the first equation
 Wdot                = 3300; %ChemicalBondEnergy - SensibleHeatLoss; %[J/cycle]; work done by the engine each cycle
@@ -143,8 +135,7 @@ Wdot                = 3300; %ChemicalBondEnergy - SensibleHeatLoss; %[J/cycle]; 
 %efficiencyCarnot    = Wdot * ChemicalBondEnergy; %[ratio]; theoretically highest obtainable efficiency
 
 
-%%
-%Theoretical pV-diagram
+%% Theoretical pV-diagram
 
 AirPressure = 100960; %[N/m^2] atmospheric pressure
 
@@ -203,6 +194,18 @@ p3 = p2 * T3 / T2;
 %p1 = p4 * T1 / T4
 p1 = pamb * Tamb / Texh;
 
+%% Efficiency
+% Calculate the ideal thermal efficiency (Ott efficiency)
+gamma = 1 %Since gamma (Cp/Cv) can be calculated using this matlab model I gave it a value of 1. SHOULD BE CHANGED
+eta_O = 1-(1/compressionRatio)^(mean(gamma)-1); 
+
+
+% Calculate efficiency by dividing the work W by the input heat Q
+% Work is equal to the area under the curve (trapz command)
+
+p=1 %p isn't calculated yet.
+eta = trapz(displacementVolume,p)/(QLHV*mdotfuel); 
+
 %% plots
 
 T12 = linspace(273, 323, 10); %to be replaced with the temperature in step12
@@ -211,8 +214,8 @@ Vv1 = linspace(150, 200, 10);
 [T23,V1m] = ndgrid(T12,Vv1); %to be replaced with the temperature in step23
 [T41,V1m] = ndgrid(T34,Vv1); %to be replaced with the temperature in step41
 R = 0.2871;
-thank_capacity = 0.0031 %m³;
-desity_gasoline = 800 %kg/m³;
+thank_capacity = 0.0031 %m??;
+desity_gasoline = 800 %kg/m??;
 total_mass_fuel = thank_capacity * desity_gasoline; %kg
 m = molarmassFuel  
 % p1 = 7.8378;
