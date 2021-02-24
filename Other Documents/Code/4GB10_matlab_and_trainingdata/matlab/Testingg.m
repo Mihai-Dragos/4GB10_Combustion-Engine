@@ -1,11 +1,19 @@
 %%
 %%For full_load dataset
 
+<<<<<<< HEAD
 full_table = dlmread("C:\Users\alexa\OneDrive\Desktop\4GB10_Combustion-Engine\Other Documents\Code\4GB10_matlab_and_trainingdata\Data\Training Set\full_load.txt");
 full_time = full_table(:,1);
 full_voltage = full_table(:,2);
 full_pulse = full_table(:,3);
 %full_volume = full_table(:,4);
+=======
+full_table = dlmread("C:\Users\20192303\Documents\Year 2\Quartile 3\Combustion engine\4GB10_Combustion-Engine\Other Documents\Code\4GB10_matlab_and_trainingdata\Data\Training Set\full_load.txt");
+full_time = full_table(:,1);
+full_voltage = full_table(:,2);
+full_pulse = full_table(:,3);
+full_volume = full_table(:,4);
+>>>>>>> main
 
 
 V_s = 5; %V, constant
@@ -27,7 +35,11 @@ hold off
 %%
 %%For half_load dataset
 
+<<<<<<< HEAD
 half_table = dlmread("C:\Users\alexa\OneDrive\Desktop\4GB10_Combustion-Engine\Other Documents\Code\4GB10_matlab_and_trainingdata\Data\Training Set\half_load.txt");
+=======
+half_table = dlmread("C:\Users\20192303\Documents\Year 2\Quartile 3\Combustion engine\4GB10_Combustion-Engine\Other Documents\Code\4GB10_matlab_and_trainingdata\Data\Training Set\half_load.txt");
+>>>>>>> main
 half_time = half_table(:,1);
 half_voltage = half_table(:,2);
 half_pulse = half_table(:,3);
@@ -56,7 +68,11 @@ hold off
 %%
 %%For no_load dataset
 
+<<<<<<< HEAD
 no_table = dlmread("C:\Users\alexa\OneDrive\Desktop\4GB10_Combustion-Engine\Other Documents\Code\4GB10_matlab_and_trainingdata\Data\Training Set\no_load.txt");
+=======
+no_table = dlmread("C:\Users\20192303\Documents\Year 2\Quartile 3\Combustion engine\4GB10_Combustion-Engine\Other Documents\Code\4GB10_matlab_and_trainingdata\Data\Training Set\no_load.txt");
+>>>>>>> main
 no_time = no_table(:,1);
 no_voltage = no_table(:,2);
 no_pulse = no_table(:,3);
@@ -79,6 +95,7 @@ xlim([0 0.04])
 hold off
 
 
+<<<<<<< HEAD
 %% Formula for angle and volume
 tetha_0 = 180;
 v_tetha= 18000;
@@ -101,10 +118,19 @@ end
 % hold on
 % plot(full_time, full_pulse)
 % hold off
+=======
+%% Pulse
 
 figure()
 hold on
 plot(full_time, full_pulse)
+hold off
+>>>>>>> main
+
+figure()
+hold on
+plot(full_time, full_pulse)
+<<<<<<< HEAD
 title("Full load pulse sensor");
 xlim([0 0.04])
 hold off
@@ -126,10 +152,32 @@ hold off
 % hold on
 % plot(no_time, no_pulse)
 % hold off
+=======
+xlim([0 0.04])
+hold off
+%%
+figure()
+hold on
+plot(full_time, full_pulse)
+hold off
+
+figure()
+hold on
+plot(full_time, full_pulse)
+xlim([0 0.04])
+hold off
+
+%%
+figure()
+hold on
+plot(no_time, no_pulse)
+hold off
+>>>>>>> main
 
 figure()
 hold on
 plot(no_time, no_pulse)
+<<<<<<< HEAD
 title("No load pulse sensor");
 xlim([0 0.04])
 hold off
@@ -139,11 +187,22 @@ hold off
 % hold on
 % plot(no_time, P_no)
 % hold off
+=======
+xlim([0 0.04])
+hold off
+
+%%
+figure()
+hold on
+plot(no_time, P_no)
+hold off
+>>>>>>> main
 
 figure()
 hold on
 plot(no_time, P_no)
 xlim([0 0.04])
+<<<<<<< HEAD
 title("No load pressure sensor");
 hold off
 
@@ -174,10 +233,33 @@ hold on
 plot(full_time, P_full)
 xlim([0 0.04])
 title("Full load pressure sensor");
+=======
+hold off
+
+%%
+figure()
+hold on
+plot(half_time, P_half)
+hold off
+
+figure()
+hold on
+plot(half_time, P_half)
+xlim([0 0.04])
 hold off
 
 
 %%
+figure()
+hold on
+plot(full_pulse,P_full)
+xlim([0 0.04])
+>>>>>>> main
+hold off
+
+
+%%
+<<<<<<< HEAD
 % figure()
 % hold on
 % plot(full_pulse,P_full)
@@ -191,5 +273,12 @@ hold off
 % plot(full.Vol,P_full)
 % 
 % hold off
+=======
+figure()
+hold on
+plot(full.Vol,P_full)
+
+hold off
+>>>>>>> main
 
 
