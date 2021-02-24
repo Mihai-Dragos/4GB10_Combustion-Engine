@@ -8,12 +8,6 @@ full_voltage = full_table(:,2);
 full_pulse = full_table(:,3);
 %full_volume = full_table(:,4);
 
-full_table = dlmread("C:\Users\20192303\Documents\Year 2\Quartile 3\Combustion engine\4GB10_Combustion-Engine\Other Documents\Code\4GB10_matlab_and_trainingdata\Data\Training Set\full_load.txt");
-full_time = full_table(:,1);
-full_voltage = full_table(:,2);
-full_pulse = full_table(:,3);
-full_volume = full_table(:,4);
-
 
 
 V_s = 5; %V, constant
@@ -36,8 +30,6 @@ hold off
 %%For half_load dataset
 
 half_table = dlmread("C:\Users\alexa\OneDrive\Desktop\4GB10_Combustion-Engine\Other Documents\Code\4GB10_matlab_and_trainingdata\Data\Training Set\half_load.txt");
-
-half_table = dlmread("C:\Users\20192303\Documents\Year 2\Quartile 3\Combustion engine\4GB10_Combustion-Engine\Other Documents\Code\4GB10_matlab_and_trainingdata\Data\Training Set\half_load.txt");
 
 half_time = half_table(:,1);
 half_voltage = half_table(:,2);
@@ -70,7 +62,6 @@ hold off
 
 no_table = dlmread("C:\Users\alexa\OneDrive\Desktop\4GB10_Combustion-Engine\Other Documents\Code\4GB10_matlab_and_trainingdata\Data\Training Set\no_load.txt");
 
-no_table = dlmread("C:\Users\20192303\Documents\Year 2\Quartile 3\Combustion engine\4GB10_Combustion-Engine\Other Documents\Code\4GB10_matlab_and_trainingdata\Data\Training Set\no_load.txt");
 
 no_time = no_table(:,1);
 no_voltage = no_table(:,2);
