@@ -128,6 +128,13 @@ V1 = V2/r;
 
 T2 = T1*V2/V1;  % T2 = T1 * r
 
+P12(1)= P1;
+V12(1) = V2;
+steps =  1000;
+for i=2:steps+1
+    P12(i) = P1;
+    V12(i) = V1;
+end
 
 
 %% 2-3 Adiabatic compression
@@ -235,19 +242,19 @@ U4 = U3 + Q_comb;
 Uafter_comb = ui*Yafter_comb';
 T4 = interp1(Uafter_comb,TR,U4)
 
-T34(1) = T3;
+Tin(1) = T3;
 P34(1) = P3*kPa;
 V34(1) = V3;
 for i = 2:steps+1
     for ii =1:NElements
-        Cv(ii) =CvNasa(T34(i-1), Elements(ii));
+        Cv(ii) =CvNasa(Tin(i-1), Elements(ii));
     end
     Cv34(i) = Cv*Yafter_comb';
-    T34(i) = -Q_comb/steps/(Cv34(i)) +T34(i-1);
+    Tin(i) = -Q_comb/steps/(Cv34(i)) +Tin(i-1);
     V34(i) = V3;
-    P34(i) = P34(i-1)*T34(i)/T34(i-1);
+    P34(i) = P34(i-1)*Tin(i)/Tin(i-1);
 end
-T4= T34(steps+1)
+T4= Tin(steps+1)
 P4 = P34(steps+1)
 % p3/T3 = P4/T4
 
@@ -291,8 +298,9 @@ for i=2:steps
   P56(i) = P56(i-1) - dP;
 end
 
+
 %%
-hold on; plot(V23, P23); plot(V34, P34); plot(V45, P45); plot(V56, P56);
+hold on; plot(V23, P23); plot(V34, P34); plot(V45, P45); plot(V56, P56); plot(V12,P12);
 xlabel("V [m^3]");
 ylabel("p [N/m^2]")
 title("Theoretical p-V diagram Otto cycle assumptions")
