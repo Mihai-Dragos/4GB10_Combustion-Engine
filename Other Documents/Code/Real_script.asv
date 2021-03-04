@@ -113,7 +113,7 @@ Cv = Y_AF*Cvi'; %specific heat at constant volume for fuel
 gamma = Cp/Cv  %heat capacity ratio
 eff_otto = 1-(1/r)^(gamma-1) %otto efficiency
 
-%eff = trapz(dV,p)/(q_lhv*Mfuel); %Thermal efficiency
+eff = trapz(dV,p)/(q_lhv*
 
 
 function V = Vcyl(Ca, Vc, Vd)

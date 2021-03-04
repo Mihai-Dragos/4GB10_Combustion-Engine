@@ -1,8 +1,8 @@
 clear all;close all;clc
 %% add general to matlab path 
-addpath('C:\Users\20192303\Desktop\matlab\General\');
+addpath('C:\Users\20161501\Desktop\matlab\General');
 %%
-DataDir='C:\Users\20192303\Desktop\matlab\gasoline';ColumnOrder={'time','Sensor','Encoder'};
+DataDir='C:\Users\20161501\Desktop\matlab\gasoline';ColumnOrder={'time','Sensor','Encoder'};
 % DataDir='../Data/Gasoline';cOrder={'time'','Encoder','Sensor};
 col = lines(3);
 %% Loading all measurments in DataDir
@@ -52,7 +52,7 @@ rc=9.5;
 l=0.088;
 B=0.065;
 %%
-full_table = dlmread("C:\Users\20192303\Desktop\matlab\gasoline\1.txt");
+full_table = dlmread("C:\Users\20161501\Desktop\matlab\gasoline\1.txt");
 full_time = full_table(:,1);
 full_voltage = full_table(:,2);
 full_pulse = full_table(:,3);
