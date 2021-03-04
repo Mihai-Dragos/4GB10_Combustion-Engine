@@ -100,6 +100,7 @@ dV=V(i)-V(i-1); % Volume change
 for ii = 1:NElements
        Cp(ii) = CpNasa(T(i-1), Elements(ii));
        Cv(ii) = CvNasa(T(i-1), Elements(ii));
+<<<<<<< HEAD
 end
 
 Cv_mix(i)= Cv*Y_AF';
@@ -108,6 +109,21 @@ Cp_mix(i)= Cp*Y_AF';
 Rg(i) = Cp_mix(i) - Cv_mix(i);
 
 dT=(-dQcom(i)*dCa-p(i-1)*dV)/Cv_mix(i)/m(i-1); % 1st Law dU=dQ-pdV (closed system)
+=======
+    end
+Cp_fuel(i) = Cp*Yfuel';
+Cv_fuel(i) = Cv*Yfuel';
+Cp_air(i) = Cp*Yair';
+Cv_air(i) = Cv*Yair';
+
+Cv_mix= (AF*(Cv_fuel(i) + AF*Cv_air(i)))/(1/AF +1);
+Cp_mix= (AF*(Cp_fuel(i) + AF*Cp_air(i)))/(1/AF +1);
+
+Rg(i) = Cp_mix(i) - Cv_mix(i);
+
+dT=(-dQcom(i)*dCa-p(i-1)*dV)/Cv
+m(i-1); % 1st Law dU=dQ-pdV (closed system)
+>>>>>>> main
 % adiabatic closed system with constant
 % gas composition and constant Cv
 T(i)=T(i-1)+dT;
