@@ -86,20 +86,37 @@ end
 %% Loop over crank-angle, with 'for' construction
 NCa=360; % Number of crank-angles
 dCa=0.5; % Stepsize
-Cv =750;
-Rg = 300;
+%Cv =750;
+%Rg = 300;
 NSteps=NCa/dCa;
+
 for i=2:NSteps
+
 Ca(i)=Ca(i-1)+dCa;
 V(i)=Vcyl(Ca(i), Vc, Vd); % New volume for current crank-angle
 m(i)=m(i-1); % Mass is constant, valves are closed
 dV=V(i)-V(i-1); % Volume change
 [~,dQcom(i)] = HeatReleased(Ca(i), AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref);
-dT=(-dQcom(i)*dCa-p(i-1)*dV)/Cv/m(i-1); % 1st Law dU=dQ-pdV (closed system)
+for ii = 1:NElements
+       Cp(ii) = CpNasa(T(i-1), Elements(ii));
+       Cv(ii) = CvNasa(T(i-1), Elements(ii));
+    end
+Cp_fuel(i) = Cp*Yfuel';
+Cv_fuel(i) = Cv*Yfuel';
+Cp_air(i) = Cp*Yair';
+Cv_air(i) = Cv*Yair';
+
+Cv_mix= (AF*(Cv_fuel(i) + AF*Cv_air(i)))/(1/AF +1);
+Cp_mix= (AF*(Cp_fuel(i) + AF*Cp_air(i)))/(1/AF +1);
+
+Rg(i) = Cp_mix(i) - Cv_mix(i);
+
+dT=(-dQcom(i)*dCa-p(i-1)*dV)/Cv
+m(i-1); % 1st Law dU=dQ-pdV (closed system)
 % adiabatic closed system with constant
 % gas composition and constant Cv
 T(i)=T(i-1)+dT;
-p(i)=m(i)*Rg*T(i)/V(i); % Gaslaw
+p(i)=m(i)*Rg(i)*T(i)/V(i); % Gaslaw
 end;
 
 % efficiency
@@ -114,7 +131,6 @@ gamma = Cp/Cv  %heat capacity ratio
 eff_otto = 1-(1/r)^(gamma-1) %otto efficiency
 
 %eff = trapz(dV,p)/(q_lhv*Mfuel); %Thermal efficiency
-
 
 function V = Vcyl(Ca, Vc, Vd)
 % V         - Volume at give crank angle            - [m^3]
