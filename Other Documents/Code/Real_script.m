@@ -41,8 +41,13 @@ Xair = [0 0 0 0 0.79 0.21];                 % Molar compisition of air
 Mair = Xair*Mi';                            % Molar mass of air
 Yair = Xair.*Mi/Mair;                       % Mass compisition of air
 
-mfurate = 0.1
-Zfuel  =[0.0 1 0 0 0 0]; 
+mfurate = 0.1;
+
+%Zfuel  =[0 1 0 0 0 0];             %E0
+%Zfuel  =[0.05 0.95 0 0 0 0];       %E5
+%Zfuel  =[0.1 0.9 0 0 0 0];          %E10
+Zfuel  =[0.15 0.85 0 0 0 0];       %E15
+
 rho_C8H18 = 0.7; %[g/cm^3];
 rho_C2H5OH = 0.79; %[g/cm^3]
 rho = [rho_C2H5OH, rho_C8H18, 0 0 0 0];
@@ -50,6 +55,8 @@ Yfuel = Zfuel.*rho./(sum(Zfuel.*rho));
 Mair = ((12.5*32*Yfuel(2)/114.2285) +(3*32*Yfuel(1))/46)/Yair(6);
 Mfuel = 1;
 AF = Mair/Mfuel;
+
+Y_AF = (Yair*AF + Yfuel)/(AF+1);    % Mass composition of air-fuel mixture
 
 TR = [200:1:5000];
 
@@ -59,14 +66,16 @@ for i=1:length(Elements);
     ui(:,i) = UNasa(TR, Elements(i));
 end
 
-P0 = Pamb
-T0 = Tamb
+P0 = Pamb;
+T0 = Tamb;
 p(1)=P0;
 T(1)=T0;
 pad(1)=p(1);
 Ca(1)=180;
 V(1)=Vcyl(Ca(1), Vc, Vd); 
 m(1) = 1;
+
+
 %% Vcyl is a function that
 % computes cyl vol as fie of crank-
 % angle for given B,S,l and rc
@@ -74,8 +83,7 @@ m(1) = 1;
 for i = 340:400
 [~,Qcomb(i)] = HeatReleased(i, AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref);
 end
-%%
-% Loop over crank-angle, with 'for' construction
+%% Loop over crank-angle, with 'for' construction
 NCa=360; % Number of crank-angles
 dCa=0.5; % Stepsize
 Cv =750;
@@ -94,7 +102,18 @@ T(i)=T(i-1)+dT;
 p(i)=m(i)*Rg*T(i)/V(i); % Gaslaw
 end;
 
+% efficiency
+T_cycle = mean(T); %Mean temperature during an cycle
+for i = 1:NElements %Using NASA for specific heat values
+    Cpi(:,i) = CpNasa(T_cycle,Elements(i));
+    Cvi(:,i) = CvNasa(T_cycle,Elements(i));
+end
+Cp = Y_AF*Cpi';  %specific heat at constant pressure for fuel
+Cv = Y_AF*Cvi'; %specific heat at constant volume for fuel
+gamma = Cp/Cv  %heat capacity ratio
+eff_otto = 1-(1/r)^(gamma-1) %otto efficiency
 
+%eff = trapz(dV,p)/(q_lhv*Mfuel); %Thermal efficiency
 
 
 function V = Vcyl(Ca, Vc, Vd)
@@ -175,4 +194,6 @@ elseif Ca < Theta_s
     Qcomb =0;
 end 
 end
+
+
 
