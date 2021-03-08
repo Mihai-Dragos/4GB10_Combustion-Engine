@@ -304,3 +304,26 @@ hold on; plot(V23, P23); plot(V34, P34); plot(V45, P45); plot(V56, P56); plot(V1
 xlabel("V [m^3]");
 ylabel("p [N/m^2]")
 title("Theoretical p-V diagram Otto cycle assumptions")
+legend("adiabatic compression","ignition happens","adiabatic expansion","valve opens","exhaust/intake stroke") %please correct me if I am wrong
+
+%%Find the work done, a = adiabatic compression, b = ignition happens, c = adiabatic expansion ,d = valve opens ,e = exhaust/intake stroke
+a = trapz(V23, P23) *10^5; 
+area(V45, P45)
+
+hold on
+area(V23, P23)
+b = trapz(V34, P34) *10^5; 
+%area(V34, P34)
+c = trapz(V45, P45) *10^5;
+
+d = trapz(V56, P56) *10^5;
+%area(V56, P56)
+e = trapz(V12, P12) *10^5;
+area(V12, P12)
+
+
+a_5 = 100000*(7.84*10^(-5) - 0.000196); %double check if the are is right
+
+%%find the total area using mathematical knowledge
+
+total_area = c-a; 
