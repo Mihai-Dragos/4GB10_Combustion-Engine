@@ -1,7 +1,7 @@
 clear all;clc
 %% add general to matlab path 
 %%
-DataDir='Data\No_fuel';ColumnOrder={'time','Sensor','Encoder'};
+DataDir='Data\E5';ColumnOrder={'time','Sensor','Encoder'};
 % DataDir='../Data/Gasoline';cOrder={'time'','Encoder','Sensor};
 col = lines(3);
 %% Loading all measurments in DataDir
@@ -23,7 +23,7 @@ for i=1:nFiles
     
     if Data.NRevs >= 2
         [~, maxPressureID] = findpeaks(Data.Volt, 'MinPeakHeight', 0.5, 'MinPeakDistance', 3000);
-        stepAngle(i) = 360/(abs(Data.RevEnds(2) - Data.RevEnds(3)));
+        stepAngle(i) = 360/(abs(Data.RevEnds(1) - Data.RevEnds(2)));
         if 0 == isempty(maxPressureID)
             for ii = 1:2
                stepDiff=abs(maxPressureID(2) - Data.RevEnds(ii));
