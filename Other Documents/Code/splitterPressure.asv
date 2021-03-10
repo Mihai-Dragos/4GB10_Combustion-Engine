@@ -8,19 +8,20 @@ fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_
 % fname(1)="E5_Full_load_1.txt";
 % fname(2)="E5_Half_load_1.txt";
 %file=['Data\E5','Data\E10']
-d=0;
-for d=[1 2 3 4 6 7 8 9 10]
+
+for d=11:21
+  
     clear V
     clear Pressure 
     clear Volume
     clear adjustedPressure
-%  if d <11
- fname(d);
- DataDir         = 'Data\E5';
+    clear minPressure
+%  if d <11 
+ DataDir         = 'Data\E';
 %  else
 %   DataDir = 'Data\E15';
 %   end
- 
+ fname(d);
 
 % fname           = "E5_Full_load_1.txt";
 ColumnOrder     = {'time','Sensor','Encoder'};
@@ -106,7 +107,7 @@ Volume = Volume';
 [~, minVolumeID]=findpeaks(-Volume);
  for ii = 1:size(Pressure, 2)
      minPressure(ii) = min(Pressure(minVolumeID, ii));
-     adjustedPressure(:,ii) = Pressure(:,ii) - minPressure(ii) + 1.05;
+     adjustedPressure(:,ii) = Pressure(:,ii); - minPressure(ii) + 1.05;
  end
 
 %Shifting the peak pressure
@@ -153,7 +154,7 @@ legend(fname)
 figure(2)
 hold on
 time=Data.t;
-plot(time([1:2*N]), adjustedPressure(:,1))
+plot(time([1:2*N]), Pressure(:,1))
 % plot(time([1:2*N]), Pressure(:,2))
 % plot(time([1:2*N]), Pressure(:,3))
 % plot(time([1:2*N]), Pressure(:,4))

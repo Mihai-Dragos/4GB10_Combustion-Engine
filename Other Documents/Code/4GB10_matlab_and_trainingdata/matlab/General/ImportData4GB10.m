@@ -26,7 +26,7 @@ else
     iEncoder    = ii(2);
     iSensor     = ii(3);
 end
-t=D(:,iT);p=D(:,iEncoder);V=D(:,iSensor);
+t=D(:,iT);V=D(:,iEncoder);p=D(:,iSensor);
 endloc = length(t);
 % Find double tooth
 [apks,alocs]    = findpeaks(p);
