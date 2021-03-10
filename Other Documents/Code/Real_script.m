@@ -86,23 +86,47 @@ end
 %% Loop over crank-angle, with 'for' construction
 NCa=360; % Number of crank-angles
 dCa=0.5; % Stepsize
-Cv =750;
-Rg = 300;
+%Cv =750;
+%Rg = 300;
 NSteps=NCa/dCa;
+
 for i=2:NSteps
+
 Ca(i)=Ca(i-1)+dCa;
 V(i)=Vcyl(Ca(i), Vc, Vd); % New volume for current crank-angle
 m(i)=m(i-1); % Mass is constant, valves are closed
 dV=V(i)-V(i-1); % Volume change
 [~,dQcom(i)] = HeatReleased(Ca(i), AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref);
-dT=(-dQcom(i)*dCa-p(i-1)*dV)/Cv/m(i-1); % 1st Law dU=dQ-pdV (closed system)
+for ii = 1:NElements
+       Cp(ii) = CpNasa(T(i-1), Elements(ii));
+       Cv(ii) = CvNasa(T(i-1), Elements(ii));
+
+end
+
+Cv_mix(i)= Cv*Y_AF';
+Cp_mix(i)= Cp*Y_AF';
+
+Rg(i) = Cp_mix(i) - Cv_mix(i);
+
+dT=(-dQcom(i)*dCa-p(i-1)*dV)/Cv_mix(i)/m(i-1); % 1st Law dU=dQ-pdV (closed system)
+
+
 % adiabatic closed system with constant
 % gas composition and constant Cv
 T(i)=T(i-1)+dT;
-p(i)=m(i)*Rg*T(i)/V(i); % Gaslaw
+p(i)=m(i)*Rg(i)*T(i)/V(i); % Gaslaw
 end;
 
-% efficiency
+%% efficiency using Cp and Cv, that were calculated with non-constant
+%%temperature
+for i=2:NSteps
+gamma(i) = Cp_mix(i)/Cv_mix(i);  %heat capacity ratio
+Eff_otto(i) = 1-(1/r)^(gamma(i)-1); %otto efficiency
+end;
+
+Efficiency_average = mean(Eff_otto(i))
+
+%% efficiency
 T_cycle = mean(T); %Mean temperature during an cycle
 for i = 1:NElements %Using NASA for specific heat values
     Cpi(:,i) = CpNasa(T_cycle,Elements(i));
@@ -112,9 +136,8 @@ Cp = Y_AF*Cpi';  %specific heat at constant pressure for fuel
 Cv = Y_AF*Cvi'; %specific heat at constant volume for fuel
 gamma = Cp/Cv  %heat capacity ratio
 eff_otto = 1-(1/r)^(gamma-1) %otto efficiency
-
+%%
 %eff = trapz(dV,p)/(q_lhv*Mfuel); %Thermal efficiency
-
 
 function V = Vcyl(Ca, Vc, Vd)
 % V         - Volume at give crank angle            - [m^3]
@@ -194,6 +217,8 @@ elseif Ca < Theta_s
     Qcomb =0;
 end 
 end
+
+
 
 
 
