@@ -4,23 +4,32 @@ clc
 %% add general to matlab path 
 %%
 %run('Real_script.m');
-fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
+
+fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt","E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt"];
+
+%fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt"];
+%fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
+   % , "E15_no_load_1.txt","E15_no_load_2.txt","E15_no_load_3.txt","E15_no_load_4.txt","E15_no_load_5.txt"];
+
+
 % fname(1)="E5_Full_load_1.txt";
 % fname(2)="E5_Half_load_1.txt";
 %file=['Data\E5','Data\E10']
-d=0;
-for d=[1 2 3 4 6 7 8 9 10]
+
+
+for d= [1]
     clear V
     clear Pressure 
     clear Volume
     clear adjustedPressure
 %  if d <11
- fname(d);
- DataDir         = 'Data\E5';
+%fname(d);
+
+DataDir         = 'Data\E5';
 %  else
-%   DataDir = 'Data\E15';
+
+%DataDir = 'Data\E15';
 %   end
- 
 
 % fname           = "E5_Full_load_1.txt";
 ColumnOrder     = {'time','Sensor','Encoder'};
@@ -43,24 +52,23 @@ Case.DataDir  = DataDir;
 % preamble, put data in easy to use arrays
 t      = Data.t;
 p      = Data.pulse;
-V      = ( (Data.Volt / 5 - 0.115) / 0.00385 );
+V      = ( (Data.Volt / 5 - 0.115) / 0.0154 );
 RevEnd = Data.RevEnds;
 NRevs  = Data.NRevs;
 
-%finding the double tooth position
-if Data.NRevs >= 2
-    [~, maxPressureID] = findpeaks(Data.Volt, 'MinPeakHeight', 0.5, 'MinPeakDistance', 3000);
-    stepAngle = 360/(abs(Data.RevEnds(1) - Data.RevEnds(2)));
-    if 0 == isempty(maxPressureID)
-        for ii = 1:2
-           stepDiff=abs(maxPressureID(2) - Data.RevEnds(ii));
-           angle(ii) = stepAngle * stepDiff;
-        end
-    end
-    meanAngle = mean(angle);
-    stdAngle = std(angle);
-end
-
+% %finding the double tooth position
+% if Data.NRevs >= 2
+%     [~, maxPressureID] = findpeaks(Data.Volt, 'MinPeakHeight', 0.5, 'MinPeakDistance', 3000);
+%     stepAngle = 360/(abs(Data.RevEnds(1) - Data.RevEnds(2)));
+%     if 0 == isempty(maxPressureID)
+%         for ii = 1:2
+%            stepDiff=abs(maxPressureID(2) - Data.RevEnds(ii));
+%            angle(ii) = stepAngle * stepDiff;
+%         end
+%     end
+%     meanAngle = mean(angle);
+%     stdAngle = std(angle);
+% end
 
 
 %Seperatating the different cycles in recorded data
@@ -73,6 +81,7 @@ peakDistance = 55; %[* 0.00001 or amount of data entries] excess difference betw
 %cycle is off by some amount of data entries. This number is that amount.
 %Unclear? ask Vito.
 
+
 N = (floor(length(V)/NRevs)) - peakDistance;
 for ii = 1:floor(NRevs/2)
    LB = (ii-1)*2*N+1;
@@ -84,7 +93,7 @@ check = length(V) - N*NRevs;
 
 %Checking where in the cycle the 
 [~, maxPressureID] = max(Pressure(:,1)); 
-if maxPressureID < RevEnd(2*(1-1)+1)
+if maxPressureID < RevEnd(1)
      %requires left shift
      signPhi = -1;
 else
@@ -96,19 +105,30 @@ end
 dCa = 360/N;
 Ca(1) = 0;
 Volume(1) = Vcyl(Ca(1), signPhi);
+
 for ii =2:length(Pressure)
     Ca(ii) = Ca(ii-1) + dCa;
     Volume(ii) = Vcyl(Ca(ii), signPhi);
+   
 end
 Volume = Volume';
 
 %Accounting the pressure for the drift
-[~, minVolumeID]=findpeaks(-Volume);
- for ii = 1:size(Pressure, 2)
-     minPressure(ii) = min(Pressure(minVolumeID, ii));
-     adjustedPressure(:,ii) = Pressure(:,ii) - minPressure(ii) + 1.05;
- end
+[~ , minVolumeID]=findpeaks(-Volume);
 
+ for ii= 1: size(Pressure, 2)
+  
+      find_variable(ii) = mean(Pressure(find(round(Ca, 0) == 563), ii));
+     [~, Diff_pressure(ii)] = max(diff(Pressure(:,ii)));
+     minPressure_1(ii) = min(Pressure(minVolumeID, ii));
+     minPressure_2(ii) = min(Pressure(Diff_pressure(ii), ii));
+     adjustedPressure_1(:,ii) = Pressure(:,ii) - minPressure_1(ii) + 1.05;
+     adjustedPressure_2(:,ii) = Pressure(:,ii) - minPressure_2(ii) + 1.05;
+     adjustedPressure_3(:,ii) = Pressure(:,ii) - find_variable(ii) + 1.05;
+end
+
+
+ %%
 %Shifting the peak pressure
 
 
@@ -129,15 +149,18 @@ Volume = Volume';
 % title(fname);
 
 %for graph titles
-cycles = size(minPressure);
-cycles = cycles(2);
+%cycles = size(minPressure);
+%cycles = cycles(2);
 
 %%
-figure(1)
-hold on
-plot(Volume, adjustedPressure(:,1))
-% plot(Volume, adjustedPressure(:,2))
-% plot(Volume, adjustedPressure(:,3))
+figure(1);
+hold on;
+plot(Volume, adjustedPressure_1(:,1));
+plot(Volume, adjustedPressure_2(:,1));
+plot(Volume, adjustedPressure_3(:,1));
+legend("Method 1 (original)", "Method 2", "Method 3");
+grid on;
+grid minor;
 % plot(Volume, adjustedPressure(:,4))
 % plot(Volume, adjustedPressure(:,5))
 % plot(Volume, adjustedPressure(:,6))
@@ -148,14 +171,22 @@ plot(Volume, adjustedPressure(:,1))
 xlabel('Volume [cm^3]')
 ylabel('Pressure [bar]')
 %title(fname + " (" + cycles + " cycles)");
-legend(fname)
-
+% for i=1:d
+% legendInfo = str2double(fname(i));
+% end
+%   lgd = 
+%legend(fname);
+end
+% legendInfo(d) = fname;
+% legend(legendInfo);
 %%
 %%Find the work done
 
 %%Establishing the formula to use to determine the Work Done
 
-Work_done_1 = trapz(Volume, adjustedPressure(:,1)) *10^5;     %% in Jules [J]
+%Work_done_1 = trapz(Volume, adjustedPressure(:,1)) *10^5;     %% in Jules [J]
+
+
 %Work_done_2 = trapz(Volume, adjustedPressure(:,2)) *10^5;    %% in Jules [J]
 %Work_done_3 = trapz(Volume, adjustedPressure(:,3)) *10^5;    %% in Jules [J]
 %Work_done_4 = trapz(Volume, adjustedPressure(:,4)) *10^5;    %% in Jules [J]
@@ -169,14 +200,14 @@ Work_done_1 = trapz(Volume, adjustedPressure(:,1)) *10^5;     %% in Jules [J]
 %%Show graphical Visuals, uncomment hold on only if using more than 1 curve
 %%For multiple graphs change the dim parameters as mentioned in the
 %%comments (only first and second number)
-
-area(Volume, adjustedPressure(:,1))
-%%show the work value on the graph as a annotation
-dim_1 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
-variable_1 = Work_done_1;       %%defining the work variable
-str_1 =  sprintf('The Work of the engine is %d Jules',variable_1);  %%saving the string with the work variable
-annotation('textbox',dim_1,'String',str_1,'FitBoxToText','on');     %%displaying the annotation
-
+%% un comment
+% area(Volume, adjustedPressure(:,1))
+% %%show the work value on the graph as a annotation
+% dim_1 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+% variable_1 = Work_done_1;       %%defining the work variable
+% str_1 =  sprintf('The Work of the engine is %d Jules',variable_1);  %%saving the string with the work variable
+% annotation('textbox',dim_1,'String',str_1,'FitBoxToText','on');     %%displaying the annotation
+%%
 % hold on 
 % area(Volume, adjustedPressure(:,2))
 %%show the work value on the graph as a annotation. 
@@ -255,7 +286,9 @@ annotation('textbox',dim_1,'String',str_1,'FitBoxToText','on');     %%displaying
 figure(2)
 hold on
 time=Data.t;
-plot(time([1:2*N]), adjustedPressure(:,1))
+plot(time([1:2*N]), adjustedPressure_1(:,1))
+plot(time([1:2*N]), adjustedPressure_2(:,1))
+plot(time([1:2*N]), adjustedPressure_3(:,1))
 % plot(time([1:2*N]), Pressure(:,2))
 % plot(time([1:2*N]), Pressure(:,3))
 % plot(time([1:2*N]), Pressure(:,4))
@@ -269,10 +302,14 @@ plot(time([1:2*N]), adjustedPressure(:,1))
 % plot(adjustedPressure(:,))
 xlabel('Time [s]')
 ylabel('Pressure [bar]')
-legend(fname)
+legend("Method 1 (original)", "Method 2", "Method 3");
+% for i=1:d
+% legendInfo = str2double(fname(i));
+% end
+%legend(fname);
 %title(fname + " (" + cycles + " cycles)");
 
-end
+
 %%
 function V = Vcyl(Ca, signPhi)
 % V         - Volume at give crank angle            - [m^3]
@@ -290,25 +327,27 @@ V=-Vd/2*cos(Ca*(2*pi/360)- phi)+Vc+Vd/2;
 end
 
 
-function [V, V_Theta] = volumeCycle(Ca)
-R       = 8.5;
-Vt      = 196 *10^(-6);                              % [m^2]
-Vc      = Vt/R;                                 % [m^2]
-Vd      = Vt-Vc;
-phi     = 0;            %(360-153.4)/2/pi;
 
-V=-Vd/2*cos(Ca*(2*pi/360))+Vc+Vd/2;
 
-r = 0.030;
-l = 0.085;
-V_c = Vc
-B = 0.06;
-x = r*cos(Ca/360*2*pi) + sqrt(l^2 - r^2*(sin(Ca/360*2*pi))^2);
-
-d_Theta = l + r - x;
-V_Theta = pi*(B/2)^2*d_Theta +V_c;
-
-end
+% function [V, V_Theta] = volumeCycle(Ca)
+% R       = 8.5;
+% Vt      = 196 *10^(-6);                              % [m^2]
+% Vc      = Vt/R;                                 % [m^2]
+% Vd      = Vt-Vc;
+% phi     = 0;            %(360-153.4)/2/pi;
+% 
+% V=-Vd/2*cos(Ca*(2*pi/360))+Vc+Vd/2;
+% 
+% r = 0.030;
+% l = 0.085;
+% V_c = Vc
+% B = 0.06;
+% x = r*cos(Ca/360*2*pi) + sqrt(l^2 - r^2*(sin(Ca/360*2*pi))^2);
+% 
+% d_Theta = l + r - x;
+% V_Theta = pi*(B/2)^2*d_Theta +V_c;
+% 
+% end
 
 function [Data]=ImportData4GB10(filename,cO)
 % [Data]=ImportData4GB10(filename,cO)
