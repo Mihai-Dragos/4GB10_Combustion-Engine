@@ -4,23 +4,32 @@ clc
 %% add general to matlab path 
 %%
 %run('Real_script.m');
-fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
+
+fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt","E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt"];
+
+%fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt"];
+%fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
+   % , "E15_no_load_1.txt","E15_no_load_2.txt","E15_no_load_3.txt","E15_no_load_4.txt","E15_no_load_5.txt"];
+
+
 % fname(1)="E5_Full_load_1.txt";
 % fname(2)="E5_Half_load_1.txt";
 %file=['Data\E5','Data\E10']
-d=0;
-for d=[1 2 3 4 6 7 8 9 10]
+
+
+for d= [1, 6, 11]
     clear V
     clear Pressure 
     clear Volume
     clear adjustedPressure
 %  if d <11
- fname(d);
- DataDir         = 'Data\E5';
+%fname(d);
+
+DataDir         = 'Data\E5';
 %  else
-%   DataDir = 'Data\E15';
+
+%DataDir = 'Data\E15';
 %   end
- 
 
 % fname           = "E5_Full_load_1.txt";
 ColumnOrder     = {'time','Sensor','Encoder'};
@@ -148,8 +157,14 @@ plot(Volume, adjustedPressure(:,1))
 xlabel('Volume [cm^3]')
 ylabel('Pressure [bar]')
 %title(fname + " (" + cycles + " cycles)");
-legend(fname)
-
+% for i=1:d
+% legendInfo = str2double(fname(i));
+% end
+%   lgd = 
+legend(fname);
+% 
+% legendInfo(d) = fname;
+% legend(legendInfo);
 %%
 %%Find the work done
 
@@ -269,7 +284,11 @@ plot(time([1:2*N]), adjustedPressure(:,1))
 % plot(adjustedPressure(:,))
 xlabel('Time [s]')
 ylabel('Pressure [bar]')
-legend(fname)
+
+% for i=1:d
+% legendInfo = str2double(fname(i));
+% end
+legend(fname);
 %title(fname + " (" + cycles + " cycles)");
 
 end
