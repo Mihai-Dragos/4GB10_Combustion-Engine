@@ -149,6 +149,108 @@ xlabel('Volume [cm^3]')
 ylabel('Pressure [bar]')
 %title(fname + " (" + cycles + " cycles)");
 legend(fname)
+
+%%
+%%Find the work done
+
+%%Establishing the formula to use to determine the Work Done
+
+Work_done_1 = trapz(Volume, adjustedPressure(:,1)) *10^5;     %% in Jules [J]
+%Work_done_2 = trapz(Volume, adjustedPressure(:,2)) *10^5;    %% in Jules [J]
+%Work_done_3 = trapz(Volume, adjustedPressure(:,3)) *10^5;    %% in Jules [J]
+%Work_done_4 = trapz(Volume, adjustedPressure(:,4)) *10^5;    %% in Jules [J]
+%Work_done_5 = trapz(Volume, adjustedPressure(:,5)) *10^5;    %% in Jules [J]
+%Work_done_6 = trapz(Volume, adjustedPressure(:,6)) *10^5;    %% in Jules [J]
+%Work_done_7 = trapz(Volume, adjustedPressure(:,7)) *10^5;    %% in Jules [J]
+%Work_done_8 = trapz(Volume, adjustedPressure(:,8)) *10^5;    %% in Jules [J]
+%Work_done_9 = trapz(Volume, adjustedPressure(:,9)) *10^5;    %% in Jules [J]
+%Work_done_10 = trapz(Volume, adjustedPressure(:,10)) *10^5;  %% in Jules [J]
+
+%%Show graphical Visuals, uncomment hold on only if using more than 1 curve
+%%For multiple graphs change the dim parameters as mentioned in the
+%%comments (only first and second number)
+
+area(Volume, adjustedPressure(:,1))
+%%show the work value on the graph as a annotation
+dim_1 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+variable_1 = Work_done_1;       %%defining the work variable
+str_1 =  sprintf('The Work of the engine is %d Jules',variable_1);  %%saving the string with the work variable
+annotation('textbox',dim_1,'String',str_1,'FitBoxToText','on');     %%displaying the annotation
+
+% hold on 
+% area(Volume, adjustedPressure(:,2))
+%%show the work value on the graph as a annotation. 
+% dim_2 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+% variable_2 = Work_done_2;       %%defining the work variable
+% str_2 =  sprintf('The Work of the engine is %d Jules',variable_2);  %%saving the string with the work variable
+% annotation('textbox',dim_2,'String',str_2,'FitBoxToText','on');     %%displaying the annotation
+
+% hold on
+% area(Volume, adjustedPressure(:,3))
+%%show the work value on the graph as a annotation
+% dim_3 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+% variable_3 = Work_done_3;       %%defining the work variable
+% str_3 =  sprintf('The Work of the engine is %d Jules',variable_3);  %%saving the string with the work variable
+% annotation('textbox',dim_3,'String',str_3,'FitBoxToText','on');     %%displaying the annotation
+% 
+% % hold on
+% % area(Volume, adjustedPressure(:,4))
+% %%show the work value on the graph as a annotation
+% dim_4 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+% variable_4 = Work_done_4;       %%defining the work variable
+% str_4 =  sprintf('The Work of the engine is %d Jules',variable_4);  %%saving the string with the work variable
+% annotation('textbox',dim_4,'String',str_4,'FitBoxToText','on');     %%displaying the annotation
+% 
+% % hold on
+% % area(Volume, adjustedPressure(:,5))
+% %%show the work value on the graph as a annotation
+% dim_5 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+% variable_5 = Work_done_5;       %%defining the work variable
+% str_5 =  sprintf('The Work of the engine is %d Jules',variable_5);  %%saving the string with the work variable
+% annotation('textbox',dim_5,'String',str_5,'FitBoxToText','on');     %%displaying the annotation
+% 
+% % hold on
+% % area(Volume, adjustedPressure(:,6))
+% %%show the work value on the graph as a annotation
+% dim_6 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+% variable_6 = Work_done_6;       %%defining the work variable
+% str_6 =  sprintf('The Work of the engine is %d Jules',variable_6);  %%saving the string with the work variable
+% annotation('textbox',dim_6,'String',str_6,'FitBoxToText','on');     %%displaying the annotation
+% 
+% % hold on
+% % area(Volume, adjustedPressure(:,7))
+% %%show the work value on the graph as a annotation
+% dim_7 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+% variable_7 = Work_done_7;       %%defining the work variable
+% str_7 =  sprintf('The Work of the engine is %d Jules',variable_7);  %%saving the string with the work variable
+% annotation('textbox',dim_7,'String',str_7,'FitBoxToText','on');     %%displaying the annotation
+% 
+% % hold on
+% % area(Volume, adjustedPressure(:,8))
+% %%show the work value on the graph as a annotation
+% dim_8 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+% variable_8 = Work_done_8;       %%defining the work variable
+% str_8 =  sprintf('The Work of the engine is %d Jules',variable_8);  %%saving the string with the work variable
+% annotation('textbox',dim_8,'String',str_8,'FitBoxToText','on');     %%displaying the annotation
+% 
+% % hold on
+% % area(Volume, adjustedPressure(:,9))
+% %%show the work value on the graph as a annotation
+% dim_9 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+% variable_9 = Work_done_9;       %%defining the work variable
+% str_9 =  sprintf('The Work of the engine is %d Jules',variable_9);  %%saving the string with the work variable
+% annotation('textbox',dim_9,'String',str_9,'FitBoxToText','on');     %%displaying the annotation
+% 
+% % hold on
+% % area(Volume, adjustedPressure(:,10))
+% %%show the work value on the graph as a annotation
+% dim_10 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+% variable_10 = Work_done_10;       %%defining the work variable
+% str_10 =  sprintf('The Work of the engine is %d Jules',variable_10);  %%saving the string with the work variable
+% annotation('textbox',dim_10,'String',str_10,'FitBoxToText','on');     %%displaying the annotation
+
+
+
 %%
 figure(2)
 hold on
