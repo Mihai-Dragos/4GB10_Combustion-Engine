@@ -200,13 +200,13 @@ end
 %%Show graphical Visuals, uncomment hold on only if using more than 1 curve
 %%For multiple graphs change the dim parameters as mentioned in the
 %%comments (only first and second number)
-%% un comment
-% area(Volume, adjustedPressure(:,1))
-% %%show the work value on the graph as a annotation
-% dim_1 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
-% variable_1 = Work_done_1;       %%defining the work variable
-% str_1 =  sprintf('The Work of the engine is %d Jules',variable_1);  %%saving the string with the work variable
-% annotation('textbox',dim_1,'String',str_1,'FitBoxToText','on');     %%displaying the annotation
+
+area(Volume, adjustedPressure(:,1))
+%%show the work value on the graph as a annotation
+dim_1 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+variable_1 = Work_done_1;       %%defining the work variable
+str_1 =  sprintf('The Work of the engine is %d Jules',variable_1);  %%saving the string with the work variable
+annotation('textbox',dim_1,'String',str_1,'FitBoxToText','on');     %%displaying the annotation
 %%
 % hold on 
 % area(Volume, adjustedPressure(:,2))
