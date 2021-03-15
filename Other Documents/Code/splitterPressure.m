@@ -5,7 +5,7 @@ clc
 %%
 %run('Real_script.m');
 
-fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt","E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt"];
+fname= ["E0-NO-2.txt"];
 
 %fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt"];
 %fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
@@ -14,7 +14,7 @@ fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_
 
 % fname(1)="E5_Full_load_1.txt";
 % fname(2)="E5_Half_load_1.txt";
-%file=['Data\E5','Data\E10']
+% file=['Data\E5','Data\E10']
 
 
 for d= [1]
@@ -25,7 +25,7 @@ for d= [1]
 %  if d <11
 %fname(d);
 
-DataDir         = 'Data\E5';
+DataDir         = 'Data\NewE0';
 %  else
 
 %DataDir = 'Data\E15';
@@ -42,7 +42,11 @@ col = lines(3);
 %fname       = Files(i).name;  
 %Take a name from the list
 curfilename = fullfile(DataDir,fname(d));                                  % Create the full name
-Data        = ImportData4GB10(curfilename,ColumnOrder);              % Read the data. Type help ImportData4GB10
+try
+    Data        = ImportData4GB10(curfilename,ColumnOrder);              % Read the data. Type help ImportData4GB10
+catch
+    disp("File not found.")
+end
 % store it for each case. Yes a struct that contains a struct and other
 % things. Why not?
 Case.Data     = Data;
@@ -55,20 +59,6 @@ p      = Data.pulse;
 V      = ( (Data.Volt / 5 - 0.115) / 0.0154 );
 RevEnd = Data.RevEnds;
 NRevs  = Data.NRevs;
-
-% %finding the double tooth position
-% if Data.NRevs >= 2
-%     [~, maxPressureID] = findpeaks(Data.Volt, 'MinPeakHeight', 0.5, 'MinPeakDistance', 3000);
-%     stepAngle = 360/(abs(Data.RevEnds(1) - Data.RevEnds(2)));
-%     if 0 == isempty(maxPressureID)
-%         for ii = 1:2
-%            stepDiff=abs(maxPressureID(2) - Data.RevEnds(ii));
-%            angle(ii) = stepAngle * stepDiff;
-%         end
-%     end
-%     meanAngle = mean(angle);
-%     stdAngle = std(angle);
-% end
 
 
 %Seperatating the different cycles in recorded data
@@ -184,29 +174,29 @@ end
 
 %%Establishing the formula to use to determine the Work Done
 
-%Work_done_1 = trapz(Volume, adjustedPressure(:,1)) *10^5;     %% in Jules [J]
+%Work_done_1 = trapz(Volume, adjustedPressure_2(:,1)) *10^5;     %% in Jules [J]
 
 
-%Work_done_2 = trapz(Volume, adjustedPressure(:,2)) *10^5;    %% in Jules [J]
-%Work_done_3 = trapz(Volume, adjustedPressure(:,3)) *10^5;    %% in Jules [J]
-%Work_done_4 = trapz(Volume, adjustedPressure(:,4)) *10^5;    %% in Jules [J]
-%Work_done_5 = trapz(Volume, adjustedPressure(:,5)) *10^5;    %% in Jules [J]
-%Work_done_6 = trapz(Volume, adjustedPressure(:,6)) *10^5;    %% in Jules [J]
-%Work_done_7 = trapz(Volume, adjustedPressure(:,7)) *10^5;    %% in Jules [J]
-%Work_done_8 = trapz(Volume, adjustedPressure(:,8)) *10^5;    %% in Jules [J]
-%Work_done_9 = trapz(Volume, adjustedPressure(:,9)) *10^5;    %% in Jules [J]
-%Work_done_10 = trapz(Volume, adjustedPressure(:,10)) *10^5;  %% in Jules [J]
+%Work_done_2 = trapz(Volume, adjustedPressure_2(:,2)) *10^5;    %% in Jules [J]
+%Work_done_3 = trapz(Volume, adjustedPressure_2(:,3)) *10^5;    %% in Jules [J]
+%Work_done_4 = trapz(Volume, adjustedPressure_2(:,4)) *10^5;    %% in Jules [J]
+%Work_done_5 = trapz(Volume, adjustedPressure_2(:,5)) *10^5;    %% in Jules [J]
+%Work_done_6 = trapz(Volume, adjustedPressure_2(:,6)) *10^5;    %% in Jules [J]
+%Work_done_7 = trapz(Volume, adjustedPressure_2(:,7)) *10^5;    %% in Jules [J]
+%Work_done_8 = trapz(Volume, adjustedPressure_2(:,8)) *10^5;    %% in Jules [J]
+%Work_done_9 = trapz(Volume, adjustedPressure_2(:,9)) *10^5;    %% in Jules [J]
+%Work_done_10 = trapz(Volume, adjustedPressure_2(:,10)) *10^5;  %% in Jules [J]
 
 %%Show graphical Visuals, uncomment hold on only if using more than 1 curve
 %%For multiple graphs change the dim parameters as mentioned in the
 %%comments (only first and second number)
 
-area(Volume, adjustedPressure(:,1))
+%area(Volume, adjustedPressure_2(:,1))
 %%show the work value on the graph as a annotation
-dim_1 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
-variable_1 = Work_done_1;       %%defining the work variable
-str_1 =  sprintf('The Work of the engine is %d Jules',variable_1);  %%saving the string with the work variable
-annotation('textbox',dim_1,'String',str_1,'FitBoxToText','on');     %%displaying the annotation
+%dim_1 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+%variable_1 = Work_done_1;       %%defining the work variable
+%str_1 =  sprintf('The Work of the engine is %d Jules',variable_1);  %%saving the string with the work variable
+%annotation('textbox',dim_1,'String',str_1,'FitBoxToText','on');     %%displaying the annotation
 %%
 % hold on 
 % area(Volume, adjustedPressure(:,2))
@@ -372,8 +362,8 @@ D=importdata(filename,delim, 0);
 if (nargin < 2)
     iT=1;iEncoder=2;iSensor=3;
 else
-    ii = myfind(cO,{'time','Encoder','Sensor'});
-    iT          =ii(1);
+    ii          = myfind(cO,{'time','Encoder','Sensor'});
+    iT          = ii(1);
     iEncoder    = ii(2);
     iSensor     = ii(3);
 end
@@ -420,4 +410,22 @@ Data.pulse   = p(FullCycles);
 Data.Volt    = V(FullCycles);
 Data.RevEnds = CycleIndices(2:end)-FullCycles(1);
 Data.NRevs   = length(Data.RevEnds);
+end
+
+function [ip]=myfind(S,str)
+    n=length(S);
+    m=length(str);
+    for j=1:m
+        i=1;
+        while ~strcmp(S(i),str(j)) & i < n
+            i=i+1;
+        end
+        if (strcmp(S(i),str(j)))
+            %   disp(['Found ' str '=' S(i)]);
+            ip(j)=i;
+        else
+            disp([str(j) ' NOT found']);
+            ip(j)=-1;
+        end
+    end
 end
