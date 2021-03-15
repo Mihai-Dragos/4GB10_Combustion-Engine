@@ -21,7 +21,9 @@ for d= [1]
     clear V
     clear Pressure 
     clear Volume
-    clear adjustedPressure
+    clear adjustedPressure_1
+    clear adjustedPressure_2
+    clear adjustedPressure_3
 %  if d <11
 %fname(d);
 
@@ -117,11 +119,13 @@ Volume = Volume';
 [~ , minVolumeID]=findpeaks(-Volume);
 
  for ii= 1: size(Pressure, 2)
-  
-      find_variable(ii) = mean(Pressure(find(round(Ca, 0) == 563), ii));
+ 
+     find_variable(ii) = mean(Pressure(find(round(Ca, 0) == 563), ii));
      [~, Diff_pressure(ii)] = max(diff(Pressure(:,ii)));
+     
      minPressure_1(ii) = min(Pressure(minVolumeID, ii));
      minPressure_2(ii) = min(Pressure(Diff_pressure(ii), ii));
+     
      adjustedPressure_1(:,ii) = Pressure(:,ii) - minPressure_1(ii) + 1.05;
      adjustedPressure_2(:,ii) = Pressure(:,ii) - minPressure_2(ii) + 1.05;
      adjustedPressure_3(:,ii) = Pressure(:,ii) - find_variable(ii) + 1.05;
@@ -158,7 +162,7 @@ hold on;
 plot(Volume, adjustedPressure_1(:,1));
 plot(Volume, adjustedPressure_2(:,1));
 plot(Volume, adjustedPressure_3(:,1));
-legend("Method 1 (original)", "Method 2", "Method 3");
+% legend("Method 1 (original)", "Method 2", "Method 3");
 grid on;
 grid minor;
 % plot(Volume, adjustedPressure(:,4))
@@ -175,7 +179,36 @@ ylabel('Pressure [bar]')
 % legendInfo = str2double(fname(i));
 % end
 %   lgd = 
-%legend(fname);
+legend(fname);
+
+%%
+figure(2)
+hold on
+time=Data.t;
+plot(time([1:2*N]), adjustedPressure_1(:,1));
+plot(time([1:2*N]), adjustedPressure_2(:,1));
+plot(time([1:2*N]), adjustedPressure_3(:,1));
+% plot(time([1:2*N]), Pressure(:,2))
+% plot(time([1:2*N]), Pressure(:,3))
+% plot(time([1:2*N]), Pressure(:,4))
+% plot(time([1:2*N]), Pressure(:,5))
+% plot(time([1:2*N]), Pressure(:,6))
+% plot(time([1:2*N]), Pressure(:,7))
+% plot(time([1:2*N]), Pressure(:,8))
+% plot(time([1:2*N]), Pressure(:,9))
+% plot(time([1:2*N]), Pressure(:,10))
+% plot(time([1:2*N]), Pressure(:,11))
+% plot(adjustedPressure(:,))
+xlabel('Time [s]')
+ylabel('Pressure [bar]')
+% legend("Method 1 (original)", "Method 2", "Method 3");
+% for i=1:d
+% legendInfo = str2double(fname(i));
+% end
+legend(fname);
+%title(fname + " (" + cycles + " cycles)");
+
+
 end
 % legendInfo(d) = fname;
 % legend(legendInfo);
@@ -201,12 +234,13 @@ end
 %%For multiple graphs change the dim parameters as mentioned in the
 %%comments (only first and second number)
 
-area(Volume, adjustedPressure(:,1))
-%%show the work value on the graph as a annotation
-dim_1 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
-variable_1 = Work_done_1;       %%defining the work variable
-str_1 =  sprintf('The Work of the engine is %d Jules',variable_1);  %%saving the string with the work variable
-annotation('textbox',dim_1,'String',str_1,'FitBoxToText','on');     %%displaying the annotation
+%% uncoment
+% area(Volume, adjustedPressure(:,1))
+% %%show the work value on the graph as a annotation
+% dim_1 = [.600 .90 .10 .10];     %%change first and second number(lower than 100) to change the position
+% variable_1 = Work_done_1;       %%defining the work variable
+% str_1 =  sprintf('The Work of the engine is %d Jules',variable_1);  %%saving the string with the work variable
+% annotation('textbox',dim_1,'String',str_1,'FitBoxToText','on');     %%displaying the annotation
 %%
 % hold on 
 % area(Volume, adjustedPressure(:,2))
@@ -281,33 +315,6 @@ annotation('textbox',dim_1,'String',str_1,'FitBoxToText','on');     %%displaying
 % annotation('textbox',dim_10,'String',str_10,'FitBoxToText','on');     %%displaying the annotation
 
 
-
-%%
-figure(2)
-hold on
-time=Data.t;
-plot(time([1:2*N]), adjustedPressure_1(:,1))
-plot(time([1:2*N]), adjustedPressure_2(:,1))
-plot(time([1:2*N]), adjustedPressure_3(:,1))
-% plot(time([1:2*N]), Pressure(:,2))
-% plot(time([1:2*N]), Pressure(:,3))
-% plot(time([1:2*N]), Pressure(:,4))
-% plot(time([1:2*N]), Pressure(:,5))
-% plot(time([1:2*N]), Pressure(:,6))
-% plot(time([1:2*N]), Pressure(:,7))
-% plot(time([1:2*N]), Pressure(:,8))
-% plot(time([1:2*N]), Pressure(:,9))
-% plot(time([1:2*N]), Pressure(:,10))
-% plot(time([1:2*N]), Pressure(:,11))
-% plot(adjustedPressure(:,))
-xlabel('Time [s]')
-ylabel('Pressure [bar]')
-legend("Method 1 (original)", "Method 2", "Method 3");
-% for i=1:d
-% legendInfo = str2double(fname(i));
-% end
-%legend(fname);
-%title(fname + " (" + cycles + " cycles)");
 
 
 %%
