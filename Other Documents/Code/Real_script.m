@@ -28,7 +28,7 @@ load(fullfile(DBdir,DBname));
 
 fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt","E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt"]
 
-for d = [1]
+for d = 1:5
     clear V
     clear Pressure 
     clear Volume
@@ -107,13 +107,13 @@ Volume = Volume';
 
  for ii= 1: size(Pressure, 2)
   
-      find_variable(ii) = mean(Pressure(find(round(Ca, 0) == 563), ii));
-     [~, Diff_pressure(ii)] = max(diff(Pressure(:,ii)));
+%       find_variable(ii) = mean(Pressure(find(round(Ca, 0) == 563), ii));
+%      [~, Diff_pressure(ii)] = max(diff(Pressure(:,ii)));
      minPressure_1(ii) = min(Pressure(minVolumeID, ii));
-     minPressure_2(ii) = min(Pressure(Diff_pressure(ii), ii));
+%      minPressure_2(ii) = min(Pressure(Diff_pressure(ii), ii));
      adjustedPressure_1(:,ii) = Pressure(:,ii) - minPressure_1(ii) + 1.05;
-     adjustedPressure_2(:,ii) = Pressure(:,ii) - minPressure_2(ii) + 1.05;
-     adjustedPressure_3(:,ii) = Pressure(:,ii) - find_variable(ii) + 1.05;
+%      adjustedPressure_2(:,ii) = Pressure(:,ii) - minPressure_2(ii) + 1.05;
+%      adjustedPressure_3(:,ii) = Pressure(:,ii) - find_variable(ii) + 1.05;
 end
 
 
@@ -125,12 +125,12 @@ end
 figure(1);
 hold on;
 plot(Volume, adjustedPressure_1(:,1));
-plot(Volume, adjustedPressure_2(:,1));
-plot(Volume, adjustedPressure_3(:,1));
-legend("Method 1 (original)", "Method 2", "Method 3");
+% plot(Volume, adjustedPressure_2(:,1));
+% plot(Volume, adjustedPressure_3(:,1));
+%legend("Method 1 (original)", "Method 2", "Method 3");
 grid on;
 grid minor;
-
+legend(fname);
 xlabel('Volume [cm^3]')
 ylabel('Pressure [bar]')
 
@@ -140,13 +140,13 @@ figure(2)
 hold on
 time=Data.t;
 plot(time([1:2*N]), adjustedPressure_1(:,1))
-plot(time([1:2*N]), adjustedPressure_2(:,1))
-plot(time([1:2*N]), adjustedPressure_3(:,1))
+% plot(time([1:2*N]), adjustedPressure_2(:,1))
+% plot(time([1:2*N]), adjustedPressure_3(:,1))
 
 xlabel('Time [s]')
 ylabel('Pressure [bar]')
-legend("Method 1 (original)", "Method 2", "Method 3");
-
+%legend("Method 1 (original)", "Method 2", "Method 3");
+legend(fname);
 %% Constants
 iElements = myfind({Sp.Name},{'C2H5OH','Gasoline','H2O', 'CO2', 'N2', 'O2'});
 Elements = Sp(iElements);
