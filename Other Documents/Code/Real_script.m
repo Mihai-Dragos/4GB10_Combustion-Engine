@@ -117,6 +117,8 @@ T(i)=T(i-1)+dT;
 p(i)=m(i)*Rg(i)*T(i)/V(i); % Gaslaw
 end;
 
+figure(6);
+plot(V,p)
 %% efficiency using Cp and Cv, that were calculated with non-constant
 %%temperature
 for i=2:NSteps
@@ -138,7 +140,18 @@ gamma = Cp/Cv  %heat capacity ratio
 eff_otto = 1-(1/r)^(gamma-1) %otto efficiency
 %%
 %eff = trapz(dV,p)/(q_lhv*Mfuel); %Thermal efficiency
-
+%write Excel file 
+z= input('What is the fuel type?: E')
+if z==0
+xlswrite('dataE0.xlsx',[V(:),p(:)])
+elseif z==5
+xlswrite('dataE5.xlsx',[V(:),p(:)])
+elseif z==10
+xlswrite('dataE10.xlsx',[V(:),p(:)])
+elseif z==15
+xlswrite('dataE15.xlsx',[V(:),p(:)])
+end
+%%
 function V = Vcyl(Ca, Vc, Vd)
 % V         - Volume at give crank angle            - [m^3]
 % Ca        - Crank angle                           - [degree]
@@ -217,7 +230,6 @@ elseif Ca < Theta_s
     Qcomb =0;
 end 
 end
-
 
 
 
