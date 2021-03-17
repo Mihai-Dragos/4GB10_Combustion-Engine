@@ -221,7 +221,7 @@ Work_done_1 = trapz(Volume, adjustedPressure_1(:,1)) *10^-1;     %% in Jules [J]
 Work_done_2 = trapz(Volume, adjustedPressure_2(:,1)) *10^-1;     %% in Jules [J]
 Work_done_3 = trapz(Volume, adjustedPressure_3(:,1)) *10^-1;     %% in Jules [J]
 
-Work=[Work_done_1, Work_done_2, Work_done_3]
+Work=[
 %Work_done_2 = trapz(Volume, adjustedPressure(:,2)) *10^5;    %% in Jules [J]
 %Work_done_3 = trapz(Volume, adjustedPressure(:,3)) *10^5;    %% in Jules [J]
 %Work_done_4 = trapz(Volume, adjustedPressure(:,4)) *10^5;    %% in Jules [J]
@@ -457,22 +457,4 @@ Data.pulse   = p(FullCycles);
 Data.Volt    = V(FullCycles);
 Data.RevEnds = CycleIndices(2:end)-FullCycles(1);
 Data.NRevs   = length(Data.RevEnds);
-end
-
-function [ip]=myfind(S,str)
-n=length(S);
-m=length(str);
-for j=1:m
-    i=1;
-    while ~strcmp(S(i),str(j)) & i < n
-        i=i+1;
-    end;
-    if (strcmp(S(i),str(j)))
-        %   disp(['Found ' str '=' S(i)]);
-        ip(j)=i;
-    else
-        disp([str(j) ' NOT found']);
-        ip(j)=-1;
-    end;
-end
 end

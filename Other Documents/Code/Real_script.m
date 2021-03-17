@@ -263,8 +263,14 @@ Cp = Y_AF*Cpi';  %specific heat at constant pressure for fuel
 Cv = Y_AF*Cvi'; %specific heat at constant volume for fuel
 gamma = Cp/Cv  %heat capacity ratio
 eff_otto = 1-(1/r)^(gamma-1) %otto efficiency
-%%
+%% Work
+
+Work_theory=  trapz(V,p)
+
+
+
 %eff = trapz(dV,p)/(q_lhv*Mfuel); %Thermal efficiency
+%%
 %write Excel file 
 z= input('What is the fuel type?: E')
 if z==0
@@ -284,7 +290,7 @@ function V = Vcyl(Ca, Vc, Vd)
 % Vd        - Displaced volume                      - [m^3]
 phi = 0;
 V=-Vd/2*cos(Ca*(2*pi/360))+Vc+Vd/2;
-
+end
 function [q_lhv,Qcomb] = HeatReleased(Ca, AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref)
 
 % Qcomb     - Energy released during combustion
@@ -368,3 +374,4 @@ Vt      = 196;                              % [m^2]
 Vc      = Vt/r;                                 % [m^2]
 Vd      = Vt-Vc;
 phi     = signPhi*(360-153.4)/2/pi; %360-
+end
