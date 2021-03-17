@@ -144,6 +144,42 @@ figure();
 plotResiduals(RegModel0503,'fitted')
 plotResiduals(RegModel0503,'caseorder')
 
+%% Task 3
+%The relation between all the process variables
+%Task G
+corr([BlendTime,BlendSpeed,CoatingViscosity,TempInlet])
+
+figure(4);
+subplot(3,2,1);
+scatter(BlendTime, BlendSpeed); xlabel('BlendTime');ylabel('BlendSpeed');
+subplot(3,2,2);
+scatter(BlendTime, CoatingViscosity); xlabel('BlendTime');ylabel('CoatingViscosity');
+subplot(3,2,3);
+scatter(BlendTime, TempInlet); xlabel('BlendTime');ylabel('TempInlet');
+subplot(3,2,4);
+scatter(BlendSpeed, CoatingViscosity); xlabel('BlendSpeed');ylabel('CoatingViscosity');
+subplot(3,2,5);
+scatter(BlendSpeed, TempInlet); xlabel('BlendSpeed');ylabel('TempInlet');
+subplot(3,2,6);
+scatter(CoatingViscosity, TempInlet); xlabel('CoatingViscosity');ylabel('TempInlet');
+
+
+%Correlation BlendTime and BlendSpeed highest
+
+%Task h
+Example0504=table(BlendTime, BlendSpeed, CoatingViscosity, TempInlet, dissolution);
+RegModel0504=fitlm(Example0504,'dissolution~BlendTime + BlendSpeed + CoatingViscosity +TempInlet')
+coefCI(RegModel0504)
+
+%Tstat CoatingViscoty best abs value bigger than 2
+plotSlice(RegModel0504)
+
+figure(6)
+subplot(2,1,1);
+plotResiduals(RegModel0504,'probability')
+subplot(2,1,2);
+plotResiduals(RegModel0504,'fitted','ResidualType','Studentized')
+
 %% This is just me trying do EDA, you can ingnore it
 % figure(1);
 % 

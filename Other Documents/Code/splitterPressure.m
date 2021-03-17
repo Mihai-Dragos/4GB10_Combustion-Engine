@@ -317,6 +317,34 @@ end
 
 
 
+% for i=1:d
+% legendInfo = str2double(fname(i));
+% end
+legend(fname);
+%title(fname + " (" + cycles + " cycles)");
+
+
+
+%%
+%Theory + measurements
+
+datatheory= readtable('dataE5.xlsx');
+pressure= datatheory(:,2);
+volume= datatheory(:,1);
+
+ptheory= table2array(pressure)*10.^-8;
+vtheory= table2array(volume)*10.^6;
+
+figure(3)
+hold on
+plot(vtheory,ptheory)
+%legend('theory')
+hold on 
+plot(Volume, adjustedPressure(:,1))
+
+xlabel('Volume [cm^3]')
+ylabel('Pressure [bar]')
+end
 %%
 function V = Vcyl(Ca, signPhi)
 % V         - Volume at give crank angle            - [m^3]
