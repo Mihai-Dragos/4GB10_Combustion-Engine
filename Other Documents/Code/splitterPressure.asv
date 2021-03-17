@@ -221,7 +221,7 @@ Work_done_1 = trapz(Volume, adjustedPressure_1(:,1)) *10^-1;     %% in Jules [J]
 Work_done_2 = trapz(Volume, adjustedPressure_2(:,1)) *10^-1;     %% in Jules [J]
 Work_done_3 = trapz(Volume, adjustedPressure_3(:,1)) *10^-1;     %% in Jules [J]
 
-Work=[Work_done_1, Work_done_2, Work_done_3]
+Work=[
 %Work_done_2 = trapz(Volume, adjustedPressure(:,2)) *10^5;    %% in Jules [J]
 %Work_done_3 = trapz(Volume, adjustedPressure(:,3)) *10^5;    %% in Jules [J]
 %Work_done_4 = trapz(Volume, adjustedPressure(:,4)) *10^5;    %% in Jules [J]
