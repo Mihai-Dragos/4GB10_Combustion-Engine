@@ -5,7 +5,7 @@ clc
 %%
 %run('Real_script.m');
 
-fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt","E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt"];
+fname= ["E0_fl.txt","E0_hl.txt","E0_nl.txt","E5_fl.txt","E5_hl.txt","E5_nl.txt","E10_fl.txt","E10_hl.txt","E10_nl.txt","E15_fl.txt","E15_hl.txt","E15_nl.txt",];
 
 %fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt"];
 %fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
@@ -27,7 +27,7 @@ for d= [1]
 %  if d <11
 %fname(d);
 
-DataDir         = 'Data\E5';
+DataDir         = 'DATA_Mihai_Mats\E10';
 %  else
 
 %DataDir = 'Data\E15';
@@ -221,7 +221,7 @@ Work_done_1 = trapz(Volume, adjustedPressure_1(:,1)) *10^-1;     %% in Jules [J]
 Work_done_2 = trapz(Volume, adjustedPressure_2(:,1)) *10^-1;     %% in Jules [J]
 Work_done_3 = trapz(Volume, adjustedPressure_3(:,1)) *10^-1;     %% in Jules [J]
 
-Work=[
+Work=[Work_done_1, Work_done_2, Work_done_3]
 %Work_done_2 = trapz(Volume, adjustedPressure(:,2)) *10^5;    %% in Jules [J]
 %Work_done_3 = trapz(Volume, adjustedPressure(:,3)) *10^5;    %% in Jules [J]
 %Work_done_4 = trapz(Volume, adjustedPressure(:,4)) *10^5;    %% in Jules [J]
@@ -337,15 +337,15 @@ volume= datatheory(:,1);
 ptheory= table2array(pressure)*10.^-8;
 vtheory= table2array(volume)*10.^6;
 
-figure(3)
-hold on
-plot(vtheory,ptheory)
+%figure(3)
+%hold on
+%plot(vtheory,ptheory)
 %legend('theory')
-hold on 
+%hold on 
 %plot(Volume, adjustedPressure(:,1))
-plot(Volume, adjustedPressure_1(:,1))
-xlabel('Volume [cm^3]')
-ylabel('Pressure [bar]')
+%plot(Volume, adjustedPressure_1(:,1))
+%xlabel('Volume [cm^3]')
+%ylabel('Pressure [bar]')
 end
 %%
 function V = Vcyl(Ca, signPhi)
@@ -457,4 +457,22 @@ Data.pulse   = p(FullCycles);
 Data.Volt    = V(FullCycles);
 Data.RevEnds = CycleIndices(2:end)-FullCycles(1);
 Data.NRevs   = length(Data.RevEnds);
+end
+
+function [ip]=myfind(S,str)
+n=length(S);
+m=length(str);
+for j=1:m
+    i=1;
+    while ~strcmp(S(i),str(j)) & i < n
+        i=i+1;
+    end;
+    if (strcmp(S(i),str(j)))
+        %   disp(['Found ' str '=' S(i)]);
+        ip(j)=i;
+    else
+        disp([str(j) ' NOT found']);
+        ip(j)=-1;
+    end;
+end
 end
