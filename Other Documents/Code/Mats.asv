@@ -5,7 +5,7 @@ clc
 %%
 %run('Real_script.m');
 
-fname= ["E0_fl.txt"];
+fname= ["E15-FULL-10.txt"];
 
 %fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt"];
 %fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
@@ -27,7 +27,7 @@ for d= [1]
 %  if d <11
 %fname(d);
 
-DataDir         = 'DATA_Mihai_Mats\E0';
+DataDir         = 'DATA_Mihai_Mats\E15';
 %  else
 
 %DataDir = 'Data\E15';
@@ -75,7 +75,7 @@ NRevs  = Data.NRevs;
 
 %Seperatating the different cycles in recorded data
 
-peakDistance = 20; %[* 0.00001 or amount of data entries] excess difference between two peak pressures.
+peakDistance =  %[* 0.00001 or amount of data entries] excess difference between two peak pressures.
 %This number differs for each file
 %Because the sensor does not measure *exactly* a set number of cycles,
 %There is an excess amount of entries that do not add up to a full cycle
@@ -161,17 +161,17 @@ figure(1);
 hold on;
 % plot(Volume, adjustedPressure_1(:,1));
 % plot(Volume, adjustedPressure_2(:,1));
-% plot(Volume, adjustedPressure_3(:,1));
-% plot(Volume, adjustedPressure_3(:,2));
-% plot(Volume, adjustedPressure_3(:,3));
-% plot(Volume, adjustedPressure_3(:,4));
-% plot(Volume, adjustedPressure_3(:,5));
-% plot(Volume, adjustedPressure_3(:,6));
-% plot(Volume, adjustedPressure_3(:,7));
-% plot(Volume, adjustedPressure_3(:,8));
-% plot(Volume, adjustedPressure_3(:,9));
-% plot(Volume, adjustedPressure_3(:,10));
-% plot(Volume, adjustedPressure_3(:,11));
+plot(Volume, adjustedPressure_3(:,1),'r');
+plot(Volume, adjustedPressure_3(:,2),'g');
+plot(Volume, adjustedPressure_3(:,3),'b');
+plot(Volume, adjustedPressure_3(:,4),'c');
+plot(Volume, adjustedPressure_3(:,5),'m');
+plot(Volume, adjustedPressure_3(:,6),'y');
+plot(Volume, adjustedPressure_3(:,7),'k');
+plot(Volume, adjustedPressure_3(:,8),'w');
+plot(Volume, adjustedPressure_3(:,9), '--');
+ plot(Volume, adjustedPressure_3(:,10));
+%plot(Volume, adjustedPressure_3(:,11));
 % legend("Method 1 (original)", "Method 2", "Method 3");
 grid on;
 grid minor;
@@ -207,7 +207,7 @@ plot(time([1:2*N]), adjustedPressure_3(:,7));
 plot(time([1:2*N]), adjustedPressure_3(:,8));
 plot(time([1:2*N]), adjustedPressure_3(:,9));
 plot(time([1:2*N]), adjustedPressure_3(:,10));
-plot(time([1:2*N]), adjustedPressure_3(:,11));
+%plot(time([1:2*N]), adjustedPressure_3(:,11));
 
 % plot(time([1:2*N]), Pressure(:,2))
 % plot(time([1:2*N]), Pressure(:,3))
@@ -350,16 +350,16 @@ legend(fname);
 
 T = array2table(adjustedPressure_3);
 
-cycle_6 = table2array(T(:,2));
+cycle_6 = table2array(T(:,1));
 %cycle_6_single = single(cycle_6);
 cycle_1 = table2array(T(:,7));
 %cycle_1_single = single(cycle_1);
-cycle_10 =table2array(T(:,8));
+cycle_10 =table2array(T(:,10));
 %cycle_10_single = single(cycle_10);
 
-T2 = table(cycle_1,cycle_6,cycle_10);
+T2 = table(cycle_1, cycle_6, cycle_10);
 T2.TestAvg = median(T{:,1:end},2);
-average_pressure = table2array(T(:,4));
+average_pressure = table2array(T2(:,4));
 
 figure(3)
 plot(Volume, average_pressure)
@@ -368,7 +368,7 @@ grid minor;
 xlabel('Volume [cm^3]')
 ylabel('Pressure [bar]')
 Work_done_average_pv = trapz(Volume, average_pressure) *10^-1;
-title("Plot of the pV Diagram, E_0, half load")
+title("Plot of the pV Diagram, E_{15}, full load")
 P0 = min(average_pressure);
 %%
 %Theory + measurements
