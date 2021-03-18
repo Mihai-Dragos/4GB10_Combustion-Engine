@@ -5,7 +5,7 @@ clc
 %%
 %run('Real_script.m');
 
-fname= ["E0_fl.txt","E0_hl.txt","E0_nl.txt","E5_fl.txt","E5_hl.txt","E5_nl.txt","E10_fl.txt","E10_hl.txt","E10_nl.txt","E15_fl.txt","E15_hl.txt","E15_nl.txt",];
+fname= ["E10_nl.txt"];
 
 %fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt"];
 %fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
@@ -159,8 +159,8 @@ end
 %%
 figure(1);
 hold on;
-plot(Volume, adjustedPressure_1(:,1));
-plot(Volume, adjustedPressure_2(:,1));
+%plot(Volume, adjustedPressure_1(:,1));
+%plot(Volume, adjustedPressure_2(:,1));
 plot(Volume, adjustedPressure_3(:,1));
 % legend("Method 1 (original)", "Method 2", "Method 3");
 grid on;
@@ -185,8 +185,8 @@ legend(fname);
 figure(2)
 hold on
 time=Data.t;
-plot(time([1:2*N]), adjustedPressure_1(:,1));
-plot(time([1:2*N]), adjustedPressure_2(:,1));
+%plot(time([1:2*N]), adjustedPressure_1(:,1));
+%plot(time([1:2*N]), adjustedPressure_2(:,1));
 plot(time([1:2*N]), adjustedPressure_3(:,1));
 % plot(time([1:2*N]), Pressure(:,2))
 % plot(time([1:2*N]), Pressure(:,3))
