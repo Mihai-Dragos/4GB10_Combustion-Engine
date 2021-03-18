@@ -369,7 +369,7 @@ grid minor;
 xlabel('Volume [cm^3]')
 ylabel('Pressure [bar]')
 Work_done_average_pv = trapz(Volume, average_pressure) *10^-1;
-title("Plot of the pV Diagram, E_{15}, full load")
+title("Plot of the pV Diagram, E_{15}, half load")
 P0 = min(average_pressure);
 %%
 %Theory + measurements
