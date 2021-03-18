@@ -358,7 +358,7 @@ cycle_10 =table2array(T(:,1));
 %cycle_10_single = single(cycle_10);
 
 T2 = table(cycle_1, cycle_6, cycle_10);
-T2.TestAvg = median(T2{:,1:end},2);
+T2.TestAvg = median(T{:,1:end},2);
 average_pressure = table2array(T2(:,4));
 
 figure(3)
