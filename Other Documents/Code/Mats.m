@@ -5,7 +5,7 @@ clc
 %%
 %run('Real_script.m');
 
-fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt","E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt"];
+fname= ["E15_hl.txt"];
 
 %fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt"];
 %fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
@@ -27,7 +27,7 @@ for d= [1]
 %  if d <11
 %fname(d);
 
-DataDir         = 'Data\E5';
+DataDir         = 'DATA_Mihai_Mats\E15';
 %  else
 
 %DataDir = 'Data\E15';
@@ -75,7 +75,7 @@ NRevs  = Data.NRevs;
 
 %Seperatating the different cycles in recorded data
 
-peakDistance = 55; %[* 0.00001 or amount of data entries] excess difference between two peak pressures.
+peakDistance = 110 %[* 0.00001 or amount of data entries] excess difference between two peak pressures.
 %This number differs for each file
 %Because the sensor does not measure *exactly* a set number of cycles,
 %There is an excess amount of entries that do not add up to a full cycle
@@ -159,9 +159,19 @@ end
 %%
 figure(1);
 hold on;
-plot(Volume, adjustedPressure_1(:,1));
-plot(Volume, adjustedPressure_2(:,1));
-plot(Volume, adjustedPressure_3(:,1));
+% plot(Volume, adjustedPressure_1(:,1));
+% plot(Volume, adjustedPressure_2(:,1));
+plot(Volume, adjustedPressure_3(:,1),'r');
+plot(Volume, adjustedPressure_3(:,2),'g');
+plot(Volume, adjustedPressure_3(:,3),'b');
+plot(Volume, adjustedPressure_3(:,4),'c');
+plot(Volume, adjustedPressure_3(:,5),'m');
+plot(Volume, adjustedPressure_3(:,6),'y');
+plot(Volume, adjustedPressure_3(:,7),'k');
+plot(Volume, adjustedPressure_3(:,8),'w');
+plot(Volume, adjustedPressure_3(:,9), '--');
+ plot(Volume, adjustedPressure_3(:,10));
+%plot(Volume, adjustedPressure_3(:,11));
 % legend("Method 1 (original)", "Method 2", "Method 3");
 grid on;
 grid minor;
@@ -179,15 +189,26 @@ ylabel('Pressure [bar]')
 % legendInfo = str2double(fname(i));
 % end
 %   lgd = 
-legend(fname);
+legend("cycle1","cycle2","cycle3","cycle4","cycle5","cycle6","cycle7","cycle8","cycle9","cycle10","cycle11");
 
 %%
 figure(2)
 hold on
 time=Data.t;
-plot(time([1:2*N]), adjustedPressure_1(:,1));
-plot(time([1:2*N]), adjustedPressure_2(:,1));
+%plot(time([1:2*N]), adjustedPressure_1(:,1));
+%plot(time([1:2*N]), adjustedPressure_2(:,1));
 plot(time([1:2*N]), adjustedPressure_3(:,1));
+plot(time([1:2*N]), adjustedPressure_3(:,2));
+plot(time([1:2*N]), adjustedPressure_3(:,3));
+plot(time([1:2*N]), adjustedPressure_3(:,4));
+plot(time([1:2*N]), adjustedPressure_3(:,5));
+plot(time([1:2*N]), adjustedPressure_3(:,6));
+plot(time([1:2*N]), adjustedPressure_3(:,7));
+plot(time([1:2*N]), adjustedPressure_3(:,8));
+plot(time([1:2*N]), adjustedPressure_3(:,9));
+plot(time([1:2*N]), adjustedPressure_3(:,10));
+%plot(time([1:2*N]), adjustedPressure_3(:,11));
+
 % plot(time([1:2*N]), Pressure(:,2))
 % plot(time([1:2*N]), Pressure(:,3))
 % plot(time([1:2*N]), Pressure(:,4))
@@ -325,8 +346,31 @@ Work=[Work_done_1, Work_done_2, Work_done_3]
 legend(fname);
 %title(fname + " (" + cycles + " cycles)");
 
+%%Make the average plots
 
+T = array2table(adjustedPressure_3);
 
+cycle_6 = table2array(T(:,10));
+%cycle_6_single = single(cycle_6);
+cycle_1 = table2array(T(:,7));
+%cycle_1_single = single(cycle_1);
+cycle_10 =table2array(T(:,1));
+%cycle_10_single = single(cycle_10);
+
+T2 = table(cycle_1, cycle_6, cycle_10);
+T2.TestAvg = median(T{:,1:end},2);
+average_pressure = table2array(T2(:,4));
+
+figure(3)
+hold on
+plot(Volume, average_pressure)
+grid on;
+grid minor;
+xlabel('Volume [cm^3]')
+ylabel('Pressure [bar]')
+Work_done_average_pv = trapz(Volume, average_pressure) *10^-1;
+title("Plot of the pV Diagram, E_{15}, half load")
+P0 = min(average_pressure);
 %%
 %Theory + measurements
 
@@ -337,15 +381,15 @@ volume= datatheory(:,1);
 ptheory= table2array(pressure)*10.^-8;
 vtheory= table2array(volume)*10.^6;
 
-figure(3)
-hold on
-plot(vtheory,ptheory)
+%figure(3)
+%hold on
+%plot(vtheory,ptheory)
 %legend('theory')
-hold on 
+%hold on 
 %plot(Volume, adjustedPressure(:,1))
-plot(Volume, adjustedPressure_1(:,1))
-xlabel('Volume [cm^3]')
-ylabel('Pressure [bar]')
+%plot(Volume, adjustedPressure_1(:,1))
+%xlabel('Volume [cm^3]')
+%ylabel('Pressure [bar]')
 end
 %%
 function V = Vcyl(Ca, signPhi)

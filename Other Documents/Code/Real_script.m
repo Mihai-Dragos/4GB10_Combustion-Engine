@@ -242,6 +242,8 @@ T(i)=T(i-1)+dT;
 p(i)=m(i)*Rg(i)*T(i)/V(i); % Gaslaw
 end;
 
+figure(6);
+plot(V,p)
 %% efficiency using Cp and Cv, that were calculated with non-constant
 %%temperature
 for i=2:NSteps
@@ -261,19 +263,34 @@ Cp = Y_AF*Cpi';  %specific heat at constant pressure for fuel
 Cv = Y_AF*Cvi'; %specific heat at constant volume for fuel
 gamma = Cp/Cv  %heat capacity ratio
 eff_otto = 1-(1/r)^(gamma-1) %otto efficiency
-%%
+%% Work
+
+Work_theory=  trapz(V,p)
+
+
+
 %eff = trapz(dV,p)/(q_lhv*Mfuel); %Thermal efficiency
-
-% function V = Vcyl(Ca, Vc, Vd)
-% % V         - Volume at give crank angle            - [m^3]
-% % Ca        - Crank angle                           - [degree]
-% % Vc        - Clearance volume                      - [m^3]
-% % Vd        - Displaced volume                      - [m^3]
-% phi = 0;
-% V=-Vd/2*cos(Ca*(2*pi/360))+Vc+Vd/2;
-% 
-% end
-
+%%
+%write Excel file 
+z= input('What is the fuel type?: E')
+if z==0
+xlswrite('dataE0.xlsx',[V(:),p(:)])
+elseif z==5
+xlswrite('dataE5.xlsx',[V(:),p(:)])
+elseif z==10
+xlswrite('dataE10.xlsx',[V(:),p(:)])
+elseif z==15
+xlswrite('dataE15.xlsx',[V(:),p(:)])
+end
+%%
+function V = Vcyl(Ca, Vc, Vd)
+% V         - Volume at give crank angle            - [m^3]
+% Ca        - Crank angle                           - [degree]
+% Vc        - Clearance volume                      - [m^3]
+% Vd        - Displaced volume                      - [m^3]
+phi = 0;
+V=-Vd/2*cos(Ca*(2*pi/360))+Vc+Vd/2;
+end
 function [q_lhv,Qcomb] = HeatReleased(Ca, AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref)
 
 % Qcomb     - Energy released during combustion
@@ -357,105 +374,4 @@ Vt      = 196;                              % [m^2]
 Vc      = Vt/r;                                 % [m^2]
 Vd      = Vt-Vc;
 phi     = signPhi*(360-153.4)/2/pi; %360-
-
-V=-Vd/2*cos(Ca*(2*pi/360)- phi)+Vc+Vd/2;
 end
-
-
-
-
-% function [V, V_Theta] = volumeCycle(Ca)
-% R       = 8.5;
-% Vt      = 196 *10^(-6);                              % [m^2]
-% Vc      = Vt/R;                                 % [m^2]
-% Vd      = Vt-Vc;
-% phi     = 0;            %(360-153.4)/2/pi;
-% 
-% V=-Vd/2*cos(Ca*(2*pi/360))+Vc+Vd/2;
-% 
-% r = 0.030;
-% l = 0.085;
-% V_c = Vc
-% B = 0.06;
-% x = r*cos(Ca/360*2*pi) + sqrt(l^2 - r^2*(sin(Ca/360*2*pi))^2);
-% 
-% d_Theta = l + r - x;
-% V_Theta = pi*(B/2)^2*d_Theta +V_c;
-% 
-% end
-
-function [Data]=ImportData4GB10(filename,cO)
-% [Data]=ImportData4GB10(filename,cO)
-%  WARNING: sometimes datafiles use comma as decimal separator. Than the
-%           function FAILS. We have a fast matlab tool to convert these files
-%           batchwise (see ConvertFiles.m)
-%  Input 
-%  [mandatory]  filename = full name to file to be read
-%  [optional]   cO = cell array containing column order {'time','Encoder','Sensor'} but in
-%           the order used in your data files. Above order is the default
-%  Reads datafile and stores it in a struct.
-%           Data.t          = time array
-%           Data.pulse      = pulse array
-%           Data.Volt       = sensor voltage array
-%           Data.RevEnds    = Indices to revolution end point.
-%           Data.NRevs      = Number of complete revolutions
-% Note: function trims measurement to full cycles (so even number of revs).
-%
-delim='\t';
-D=importdata(filename,delim, 0);
-%     whos D
-if (nargin < 2)
-    iT=1;iEncoder=2;iSensor=3;
-else
-    ii = myfind(cO,{'time','Encoder','Sensor'});
-    iT          =ii(1);
-    iEncoder    = ii(2);
-    iSensor     = ii(3);
-end
-t=D(:,iT);
-V=D(:,iEncoder);
-p=D(:,iSensor);
-endloc = length(t);
-% Find double tooth
-[apks,alocs]    = findpeaks(p);
-id              = find(apks > 0);
-pks             = apks(id);
-locs            = alocs(id);
-tlocs           = t(locs);
-dtlocs          = diff(tlocs);  % compute dt between maxima. Reason, double tooth has bigger dt!
-[dlocs]         = find(dtlocs > max(dtlocs)*0.5); % Pick out double tooth
-% Take full cycles (is two revolutions! this is a four-stroke engine)
-CycleIndices    = locs(dlocs);
-NRevs           = length(CycleIndices);
-Vc              = V(CycleIndices);
-if mod(NRevs,2)==0 % To make sure that only full cycles are taken.
-    fprintf('%20s\n %3i revs (will be patched\n',filename,NRevs);
-    if (Vc(1)<Vc(2))
-        fprintf('IF condition:  %9.3f < %9.3f apparently!\n',Vc(1),Vc(2));
-        CycleIndices=CycleIndices(1:end-1);
-    else
-        fprintf('ELSE condition:%9.3f > %9.3f apparently!\n',Vc(1),Vc(2));
-        CycleIndices=CycleIndices(2:end);
-    end
-else
-    fprintf('%20s\n %3i revs (will NOT be patched)\n',filename,NRevs);
-    if (Vc(1)<Vc(2))
-        fprintf('IF condition:  %9.3f < %9.3f apparently!\n',Vc(1),Vc(2));
-        CycleIndices=CycleIndices(1:end-1);
-    else
-        fprintf('ELSE condition:%9.3f > %9.3f apparently!\n',Vc(1),Vc(2));
-        CycleIndices=CycleIndices(2:end);
-    end
-end
-%     FullCycles   = [CycleIndices(1)+1:CycleIndices(end)];
-FullCycles   = [CycleIndices(1)+1:endloc];
-% Store it in the struct
-Data.t       = t(FullCycles)-t(FullCycles(1));  % Start at t=0. Shift it.
-Data.pulse   = p(FullCycles);
-Data.Volt    = V(FullCycles);
-Data.RevEnds = CycleIndices(2:end)-FullCycles(1);
-Data.NRevs   = length(Data.RevEnds);
-end
-
-
-
