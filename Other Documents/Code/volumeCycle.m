@@ -1,17 +1,9 @@
 
-function [V, V_Theta] = volumeCycle(Ca)
-R       = 8.5;
-Vt      = 196 *10^(-6);                              % [m^2]
-Vc      = Vt/R;                                 % [m^2]
+function [V, V_Theta] = volumeCycle(Ca, Vt, R, phi)
+Vc      = Vt/R;        
 Vd      = Vt-Vc;
-phi     =       0            %(360-153.4)/2/pi;
 
 V=-Vd/2*cos(Ca*(2*pi/360))+Vc+Vd/2;
-
-
-
-
-
 
 r = 0.030;
 l = 0.085;

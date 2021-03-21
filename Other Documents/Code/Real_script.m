@@ -1,152 +1,157 @@
-% Initialisation
-%% Test data base
-clear all;
-% close all;
-%% This global is needed by the Cp, Cv etc functions
-addpath('matlab/General/Nasa'); % Add directory of Nasa routines to Matlab-path
-global Runiv Pref Tref
-Runiv = 8.314;
-Pref=1.01235e5; % Reference pressure, 1 atm!
-Tref=298.15;    % Reference Temperature
-%% Some convenient units
-kJ=1e3;
-kmol=1e3;
-dm=0.1;
-bara=1e5;
-kPa = 1000;
-kN=1000;
-kg=1;
-s=1;
-mm  = 0.001;    %[m]
-cm3 = 10^(-6);  %[m^2]
-
-%% 
+%% Initialisation:
+%  Please refrain from touching this code unless errors dictate this
+clear all;                              % Clears all previously used variables
+addpath('matlab/General/Nasa');         % Add directory of Nasa routines to Matlab-path
 DBdir = 'General\Nasa';
 DBname = 'NasaThermalDatabase';
-load(fullfile(DBdir,DBname));
-%% Constants
-iElements = myfind({Sp.Name},{'C2H5OH','Gasoline','H2O', 'CO2', 'N2', 'O2'});
-Elements = Sp(iElements);
-NElements = length(Elements);
-Mi = [Elements.Mass];
+load(fullfile(DBdir,DBname));           % Loading Nasa database
 
-Tamb    = 293;                                  % [K]       Ambient temperature
-Pamb    = 100*kPa;                              % [Pa]      Ambient pressure
-r       = 8.5;                                  % [-]       Compression ratio    
-Vt      = 196*cm3;                              % [m^2]     Total Volume
-Vc      = Vt/r;                                 % [m^2]     Clearance/dead Volume
-Vd      = Vt-Vc;                                % [m^2]     Volume swept away
+%% Global variables and units
+%  Should not need to be changed
+global Runiv Pref Tref kJ kmol dm bar kPa kN kg s mm K cm3
+Runiv   = 8.314;     % gas constant
+Pref    = 1.01235e5; % Reference pressure, 1 atm!
+Tref    = 298.15;    % Reference Temperature
+kJ      = 1e3;      % kilo joule
+kmol    = 1e3;      % kilo mole
+dm      = 0.1;      % decimetre
+bar     = 1e5;      % atmospheric pressure in pascal
+kPa     = 1000;     % kilo pascal
+kN      = 1000;     % kilo newton
+kg      = 1;
+s       = 1;
+mm      = 0.001;    
+K       = 1;
+cm3     = 10^(-6);  % cubic centimetre
 
-Xair = [0 0 0 0 0.79 0.21];                     % Molar compisition of air
-Mair = Xair*Mi';                                % Molar mass of air
-Yair = Xair.*Mi/Mair;                           % Mass compisition of air
-mfurate = 2e-05;                                  % [kg/cyc]  Fuel per otto cycle 
+%% Settings
+% #########################################################################
+% ######                FILL THESE IN TO CHANGE SETTINGS              #####
+% #########################################################################
 
-% Volume compisition of fuel 
-% Zfuel  =[0 1 0 0 0 0];                        % E0
-% %Zfuel  =[0.05 0.95 0 0 0 0];                 % E5
-% Zfuel  =[0.1 0.9 0 0 0 0];                    % E10
-Zfuel  =[0.15 0.85 0 0 0 0];                    % E15
+Tambient           = 293        *K;      % Ambient temperature
+Pambient           = 100        *kPa;    % Ambient pressure
+CompressionRatio   = 8.5;                % Compression ratio    
+Vtotal             = 196        *cm3;    % Total Volume
+EthanolPercentage  = 5          /100;    % 5 for E5, 0 for E0 ....
+FuelPerCycle       = 1.73e-05   *kg;     % Fuel per otto cycle 
 
-rho_C8H18 = 0.7;                                %[g/cm^3]   Density of Gasoline
-rho_C2H5OH = 0.79;                              %[g/cm^3]   Density of Ethanol
-rho = [rho_C2H5OH, rho_C8H18, 0 0 0 0];
-Yfuel = Zfuel.*rho./(sum(Zfuel.*rho));          % Mass compistion of fuel
-Mair = ((12.5*32*Yfuel(2)/114.2285) +(3*32*Yfuel(1))/46)/Yair(6);
-                                                % Fuel Compisition 
-Mfuel = 1;
-AF = Mair/Mfuel;
+%These are MASS fractions, not VOLUME fractions, so 78% N2 and 21% O2 would
+%be FALSE!!!
+%https://www.google.com/url?sa=i&url=https%3A%2F%2Fwps.prenhall.com%2Fwps%2Fmedia%2Fobjects%2F4678%2F4790892%2Fch09_01.htm&psig=AOvVaw3aGWrax-e16Xde9JTambientik8V&ust=1616424082852000&source=images&cd=vfe&ved=0CAIQjRxqFwoTCOiKlIzPwe8CFQAAAAAdAAAAABAU
+MassAir              = [0 0 0 0.0005 0.7552 0.2314];
+VolumeAir            = [0 0 0 0.00037 0.7808 0.2095];
+density_C8H18        = 0.7;                %[g/cm^3]   Density of Gasoline
+density_C2H5OH       = 0.79;               %[g/cm^3]   Density of Ethanol
+MolarMass_C8H18      = 114.2285;
+MolarMass_C2H5OH     = 46.07;
+ReactionCoefficients = [3*32 12.5*32 0 0 0 0];   % [Ethanol Gasoline] 
 
-Y_AF = (Yair*AF + Yfuel)/(AF+1);    % Mass composition of air-fuel mixture
+NCa             = 360;            % Number of crank-angles
+stepCa          = 0.5;            % Stepsize of the loop
+CaMaximum       = 345;            % Combustion angle
+
+%% Chemical composition computations
+%Air computations
+iElements       = myfind({Sp.Name},{'C2H5OH', 'Gasoline', 'H2O', 'CO2', 'N2', 'O2'});
+Elements        = Sp(iElements);
+NElements       = length(Elements);            % Number of elements ocnsidered
+Mi              = [Elements.Mass];             % Molar mass of each component
+Vclearance      = Vtotal / CompressionRatio;   % [m^3]     Clearance/dead volume
+Vdisplacement   = Vtotal - Vclearance;         % [m^3]     Displacement volume
+MolarAir        = MassAir ./ Mi;               % Moles of air
+
+%Fuel Computations
+VolumeFuel      = [EthanolPercentage (1 - EthanolPercentage) 0 0 0 0];  % Volume compisition of fuel 
+FuelDensities   = [density_C2H5OH density_C8H18 0 0 0 0];               % Densities of each component in the fuel
+MassFuel        = VolumeFuel .* FuelDensities ./ ( sum(VolumeFuel .* FuelDensities) );          % Mass composition of fuel
+MassAirPerMassFuel = ( (ReactionCoefficients(2) * MassFuel(2) / MolarMass_C8H18) +... 
+                       (ReactionCoefficients(1) * MassFuel(1) / MolarMass_C2H5OH) )... 
+                       / MassAir(6);   %How many kgs of air are needed to burn one kg of fuel optimally
+AF = MassAirPerMassFuel;                               % Air to fuel ratio;
+MassCompositionAF = (MassAir*AF + MassFuel)/(AF+1);    % Mass composition of air-fuel mixture
 
 TR = [200:1:5000];
 
-for i=1:length(Elements);
+%% Iterative computations
+
+%Computations for the enthalpy, entropy and internal energy in each state.
+%Thus far, it remains unused.
+for i=1:length(Elements)
     si(:,i) = SNasa(TR, Elements(i));
     hi(:,i) = HNasa(TR, Elements(i));
     ui(:,i) = UNasa(TR, Elements(i));
 end
 
-P0 = 0.537900000000000*10^5;
-T0 = 293;
-p(1)=0.537900000000000*10^5;
-T(1)=300;
-pad(1)=p(1);
-Ca(1)=180;
-V(1)=Vcyl(Ca(1), Vc, Vd); 
-m(1) = mfurate*AF +mfurate;
+%Initial state
+p(1) = 0.537900000000000*10^5;
+T(1) = 300;
+Ca(1)= 180;
+V(1) = volumeCycle(Ca(1), Vtotal, CompressionRatio, 0); 
+m(1) = FuelPerCycle*AF +FuelPerCycle;
 
-%% Loop over crank-angle, with 'for' construction
-NCa=360; % Number of crank-angles
-dCa=0.5; % Stepsize
-NSteps=NCa/dCa;
-pr = 0;
-Tr = 0;
-Vr = 0;
-p1 = p(1);
-V1 = V(1);
+%% Iterative computations
+
+NSteps  = NCa/stepCa; %Number of steps made in total
+pr      = 0; %These variables are empty but need to be declared outside of the for loop
+Tr      = 0;
+Vr      = 0;
 for i=2:NSteps
 
-Ca(i)=Ca(i-1)+dCa;
-V(i)=Vcyl(Ca(i), Vc, Vd); % New volume for current crank-angle
-m(i)=m(i-1); % Mass is constant, valves are closed
-dV=V(i)-V(i-1); % Volume change
-[~,dQcom(i), dXb(i)] = HeatReleased(Ca(i), AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref);
-if Ca(i) == 345
-    pr = p(i-1);
-    Tr = T(i-1);
-    Vr = V(i-1);
-  
+    Ca(i)   = Ca(i-1) + stepCa;                                % Crank angle
+    V(i)    = volumeCycle(Ca(i), Vtotal, CompressionRatio, 0); % New volume for current crank-angle
+    m(i)    = m(i-1);                                          % Mass is constant, valves are closed
+    dV      = V(i) - V(i-1);                                   % Volume change
+    
+    %See HeatReleased function
+    [~,dQcombustion(i), dXb(i)] = HeatReleased(Ca(i), AF, FuelPerCycle, MassFuel, MassAir, Mi, Runiv, Elements, Tref);
+    
+    %When the crank angle is at its maximum, fill in the optimum values
+    if Ca(i) == CaMaximum
+        pr = p(i-1);
+        Tr = T(i-1);
+        Vr = V(i-1);
+    end
+
+    %Compute the heat capacities for each element in the mixture
+    for ii = 1:NElements
+        Cp(ii) = CpNasa(T(i-1), Elements(ii));
+        Cv(ii) = CvNasa(T(i-1), Elements(ii));
+    end
+
+    Cv_mix(i)   = Cv * MassCompositionAF';
+    Cp_mix(i) 	= Cp * MassCompositionAF';
+    Rg(i)       = Cp_mix(i) - Cv_mix(i);        % Rg = cp - cv
+    k(i)        = Cp_mix(i) / Cv_mix(i);        % k = cp / cv (sometimes called gamma)
+    Qloss(i)    = HeatLoss(Ca(i), T(i-1), p(i-1), pr, Tr, V(i-1), k(i), p(1), V(1), Vr);
+    
+    % Q = -(dQcombustion per step) - Qloss of this step * (0.04(?) / 360)
+    Q           = -dQcombustion(i) * stepCa - Qloss(i) * (0.04 / (2 * NCa) * stepCa);
+    
+    % 1st Law dU=dQ-pdV (closed system)
+    % dT = (Q - pdV)/(cv * m)
+    dT(i)       = (Q - p(i-1) * dV) / Cv_mix(i) / m(i-1); % 
+    % T now = T previously + T change this cycle
+    T(i)=T(i-1)+dT(i);
+    
+    % adiabatic closed system with constant
+    % gas composition and constant Cv
+    % p = m * Rg * T / V
+    p(i)= m(i) * Rg(i) * T(i) / V(i); % Gaslaw
+    
+    %otto efficiency
+    OttoEfficiency(i) = 1 - (1 / CompressionRatio) ^ (k(i) - 1); 
+    
 end
 
-for ii = 1:NElements
-       Cp(ii) = CpNasa(T(i-1), Elements(ii));
-       Cv(ii) = CvNasa(T(i-1), Elements(ii));
-end
+HeatRelease = HeatReleased(Ca(i), AF, FuelPerCycle, MassFuel, MassAir, Mi, Runiv, Elements, Tref) * FuelPerCycle;
+Efficiency_average = mean(OttoEfficiency(i));
 
-Cv_mix(i)= Cv*Y_AF';
-Cp_mix(i)= Cp*Y_AF';
-Rg(i) = Cp_mix(i) - Cv_mix(i);
-k(i) = Cp_mix(i)/Cv_mix(i);
-Qloss(i) = HeatLoss(Ca(i), T(i-1), p(i-1), pr, Tr, V(i-1), k(i), p1, V1, Vr);
-Q = -dQcom(i)* dCa + Qloss(i)*(0.04/(720)*dCa);
-dT(i)=(Q-p(i-1)*dV)/Cv_mix(i)/m(i-1); % 1st Law dU=dQ-pdV (closed system)
-
-
-% adiabatic closed system with constant
-% gas composition and constant Cv
-T(i)=T(i-1)+dT(i);
-p(i)=m(i)*Rg(i)*T(i)/V(i); % Gaslaw
-end;
-released = HeatReleased(Ca(i), AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref)*mfurate 
 figure(1)
 hold on
 plot(V*10^6, p/(10^5))
-%% efficiency using Cp and Cv, that were calculated with non-constant
-%%temperature
 
-for i=2:NSteps
-gamma(i) = Cp_mix(i)/Cv_mix(i);  %heat capacity ratio
-Eff_otto(i) = 1-(1/r)^(gamma(i)-1); %otto efficiency
-end;
-
-Efficiency_average = mean(Eff_otto(i))
-
-%% efficiency
-% T_cycle = mean(T); %Mean temperature during an cycle
-% for i = 1:NElements %Using NASA for specific heat values
-%     Cpi(:,i) = CpNasa(T_cycle,Elements(i));
-%     Cvi(:,i) = CvNasa(T_cycle,Elements(i));
-% end
-% Cp = Y_AF*Cpi';  %specific heat at constant pressure for fuel
-% Cv = Y_AF*Cvi'; %specific heat at constant volume for fuel
-% gamma = Cp/Cv  %heat capacity ratio
-% eff_otto = 1-(1/r)^(gamma-1) %otto efficiency
-%%
-%eff = trapz(dV,p)/(q_lhv*Mfuel); %Thermal efficiency
-
-
-
+%% Functions
 
 function V = Vcyl(Ca, Vc, Vd)
 % V         - Volume at give crank angle            - [m^3]
@@ -154,94 +159,85 @@ function V = Vcyl(Ca, Vc, Vd)
 % Vc        - Clearance volume                      - [m^3]
 % Vd        - Displaced volume                      - [m^3]
 phi = 0;
-V=-Vd/2*cos(Ca*(2*pi/360))+Vc+Vd/2;
+V   = -Vd / 2 * cos(Ca * (2 * pi / 360)) + Vc + Vd / 2;
 
 end
 
-function [q_lhv,Qcomb,dXb] = HeatReleased(Ca, AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref)
+function [q_lhv,Qcomb,dXb] = HeatReleased(Ca, AF, FuelPerCycle, MassFuel, MassAir, Mi, Runiv, Elements, Tref)
 
 % Qcomb     - Energy released during combustion
 
-mairrate      	 = mfurate*AF;               % [kg/s]    Air rate coming into the carb
-mrate_in         = mairrate + mfurate;       % {kg/s]    Rate of intake air
+AirPerCycle             = FuelPerCycle * AF;          % [kg/s]    Air rate coming into the carb
+MassFlowPerCycle        = AirPerCycle + FuelPerCycle; % {kg/s]    Rate of intake air
 
 %Mass pre-combustion
-mO2rate_in              = mairrate*Yair(6);     % [kg/s]
-mN2rate_in              = mairrate*Yair(5);     % [kg/s]
-mC2H5OHrate_in          = mfurate*Yfuel(1);
-mGASOLINErate_in        = mfurate*Yfuel(2);
-Ypre_comb               = [mC2H5OHrate_in, mGASOLINErate_in, 0, 0, mN2rate_in, mO2rate_in]./mrate_in; %mass fraction
+OxygenInflow            = AirPerCycle  * MassAir(6);     % [kg/s]
+NitrogenInflow          = AirPerCycle  * MassAir(5);     % [kg/s]
+EthanolInflow           = FuelPerCycle * MassFuel(1);
+GasolineInflow          = FuelPerCycle * MassFuel(2);
+MassFlowPreCombustion   = [EthanolInflow, GasolineInflow, 0, 0, NitrogenInflow, OxygenInflow] ./ MassFlowPerCycle; %mass fraction
 
 % moles in
-MoleO2rate_in = mO2rate_in/Mi(6);
-MoleN2rate_in = mN2rate_in/Mi(5);
-MoleC2H5OHrate_in = mC2H5OHrate_in/Mi(1);
-MoleGASOLINErate_in = mGASOLINErate_in/Mi(2);
-Molerate_in = MoleO2rate_in + MoleN2rate_in + MoleC2H5OHrate_in + MoleGASOLINErate_in;
-Xpre_comb =[MoleGASOLINErate_in, MoleC2H5OHrate_in, 0, 0, MoleN2rate_in, MoleO2rate_in]./Molerate_in;
-Mpre_comb = Xpre_comb*Mi';
+MoleO2rate_in           = OxygenInflow    / Mi(6);
+MoleN2rate_in           = NitrogenInflow  / Mi(5);
+MoleC2H5OHrate_in       = EthanolInflow   / Mi(1);
+MoleGASOLINErate_in     = GasolineInflow  / Mi(2);
+MoleInflow              = MoleO2rate_in + MoleN2rate_in + MoleC2H5OHrate_in + MoleGASOLINErate_in;
 
-Rpre_comb = Runiv/Mpre_comb';
+MoleFlowPreCombustion   = [MoleGASOLINErate_in, MoleC2H5OHrate_in, 0, 0, MoleN2rate_in, MoleO2rate_in] ./ MassFlowPerCycle;
+MolarMassPreCombustion  = MoleFlowPreCombustion*Mi';
+
+GasConstantPreCombustion= Runiv/MolarMassPreCombustion';
 
 % after combustion;
-%mass out
-mH2Orate_out = 3*Mi(3)/Mi(1)*mC2H5OHrate_in + 9*Mi(3)/Mi(2)*mGASOLINErate_in;
-mO2rate_out = mO2rate_in - 3*Mi(6)/Mi(1)*mC2H5OHrate_in - 12.5*Mi(6)/Mi(2)*mGASOLINErate_in;
-mCO2rate_out = 2*Mi(4)/Mi(1)*mC2H5OHrate_in + 8*Mi(4)/Mi(2)*mGASOLINErate_in;
-mN2rate_out = mN2rate_in;
-moutrate = [0 0 mH2Orate_out mCO2rate_out, mN2rate_out, mO2rate_out];
-check = sum(moutrate) - mrate_in;
-Yafter_comb = moutrate/sum(moutrate);
+% mass out
+
+% 3 ethanol + 9 gasoline = water
+WaterOutflow            =                3 * Mi(3)/Mi(1) * EthanolInflow + 9    * Mi(3)/Mi(2) * GasolineInflow;
+% initial oxygen - 3 ethanol - 12,5 gasoline = oxygen
+OxygenOutflow           = OxygenInflow - 3 * Mi(6)/Mi(1) * EthanolInflow - 12.5 * Mi(6)/Mi(2) * GasolineInflow;
+% 2 ethanol + 8 gasoline = co2
+CarbondioxideOutflow    =                2 * Mi(4)/Mi(1) * EthanolInflow + 8    * Mi(4)/Mi(2) * GasolineInflow;
+% N2 in = N2 out
+NitrogenOutflow         = NitrogenInflow;
+
+MassOutflow             = [0 0 WaterOutflow CarbondioxideOutflow, NitrogenOutflow, OxygenOutflow];
+check                   = sum(MassOutflow) - MassFlowPerCycle; %SHOULD BE ZERO
+MolarMassPostCombustion = MassOutflow/sum(MassOutflow);
 
 %moles out
-MoleO2rate_out = mO2rate_out/Mi(6);
-MoleN2rate_out = mN2rate_out/Mi(5);
-MoleCO2rate_out = mCO2rate_out/Mi(4);
-MoleH20rate_out = mH2Orate_out/Mi(3);
-Molerate_out = MoleO2rate_out + MoleN2rate_out + MoleCO2rate_out + MoleH20rate_out;
-Xaft_comb =[0, 0, MoleH20rate_out, MoleCO2rate_out, MoleN2rate_out, MoleO2rate_out]./Molerate_out;
-Maft_comb = Xaft_comb*Mi';
-Raft_comb = Runiv/Maft_comb';
+MoleO2rate_out          = OxygenOutflow/Mi(6);
+MoleN2rate_out          = NitrogenOutflow/Mi(5);
+MoleCO2rate_out         = CarbondioxideOutflow/Mi(4);
+MoleH20rate_out         = WaterOutflow/Mi(3);
+MoleOutflow             = MoleO2rate_out + MoleN2rate_out + MoleCO2rate_out + MoleH20rate_out;
+
+MoleFlowPostCombustion  = [0, 0, MoleH20rate_out, MoleCO2rate_out, MoleN2rate_out, MoleO2rate_out]./MoleOutflow;
+MolarMassPostCombustion = MoleFlowPostCombustion*Mi';
+GasConstantPostCombustion = Runiv/MolarMassPostCombustion';
 
 for i=1:length(Elements)
-    h_comb(i) = HNasa(Tref, Elements(i));
+    EnthalpyCombustion(i) = HNasa(Tref, Elements(i));
 end
 
-% hpre_comb = h_comb*Ypre_comb';
-% hafter_comb = h_comb*Yafter_comb';
-% q_lhv = hafter_comb - hpre_comb;
+EnthalpyPreCombustion   = EnthalpyCombustion * MassFlowPreCombustion';
+EnthalpyPostCombustion  = EnthalpyCombustion * MolarMassPostCombustion';
+q_lhv                   = -EnthalpyPostCombustion + EnthalpyPreCombustion;
 
-
-%TEST
-E=15
-d_octane =  703;                                                           %Density of octane [kg/m^3]
-d_ethanol = 789 ;                                                          %Density of ethanol [kg/m^3]
-d_fuel = (E/100)*d_ethanol + (1-E/100)*d_octane ;                          %Density of fuel [kg/m^3]
-
-Qlhv_gasoline_1 = 44.4e6;                                                  %Lower heating value gasoline [J/kg]
-Qlhv_ethanol_1 = 26.7e6;                                                   %Lower heating value ethanol [J/kg
-
-Qlhv_gasoline_2 = Qlhv_gasoline_1  * d_octane;                             %Lower heating value gasoline [J/m^3]
-Qlhv_ethanol_2 = Qlhv_ethanol_1 * d_ethanol;                               %Lower heating value ethanol [J/m^3]
-Qlhv_fuel_1 =  (1-E/100)* Qlhv_gasoline_2 +(E/100)*Qlhv_ethanol_2;         %Lower heating value fuel [J/m^3]
-q_lhv = -Qlhv_fuel_1/d_fuel; 
-
-
-
-n =3;
+n = 3;
 a = 5;
 Theta_d = 35;
-Theta_s = (360-15);
+Theta_s = (360-10);
 
 if Ca >= Theta_s
-    Xb = 1 - exp(-a*((Ca-Theta_s)/Theta_d)^n);
-    dXb = n*a*(1-Xb)/Theta_d*((Ca-Theta_s)/Theta_d)^(n-1);
-    dQcomb_dTheta = q_lhv*mfurate*dXb;
-    Qcomb = dQcomb_dTheta*1;
+    Xb              = 1 - exp(-a * ( (Ca-Theta_s) / Theta_d ) ^ n );
+    dXb             = n * a * (1-Xb) / Theta_d * ( (Ca-Theta_s) / Theta_d ) ^ (n-1);
+    dQcomb_dTheta   = q_lhv * FuelPerCycle * dXb;
+    Qcomb           = dQcomb_dTheta*1;
 elseif Ca < Theta_s  
-    Qcomb =0;
-    Xb = 0;
-    dXb = 0;
+    Qcomb           = 0;
+    Xb              = 0;
+    dXb             = 0;
 end 
 end
 
@@ -288,7 +284,7 @@ else
     RpS = 50;
     Sp  = 2*S*RpS;      %[m/s]
     B   = 0.067;        %[m]
-    Tw  = 273.15+100;    %%% CHECK %%%
+    Tw  = 273.15+95;    %%% CHECK %%%
     %% Computations
 
     % omega - The flame speed [m/s]
@@ -309,11 +305,7 @@ else
     if T < Tw
         Qloss = 0;
     else 
-        Qloss   = hc*A*(T-Tw);
+        Qloss   = -hc*A*(T-Tw);
     end
     end
 end
-
-
-
-
