@@ -24,129 +24,6 @@ cm3 = 10^(-6);  %[m^2]
 DBdir = 'General\Nasa';
 DBname = 'NasaThermalDatabase';
 load(fullfile(DBdir,DBname));
-%% PV diagrams - measured data
-
-fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt","E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt"]
-
-for d = 1:5
-    clear V
-    clear Pressure 
-    clear Volume
-    clear adjustedPressure_1
-    clear adjustedPressure_2
-    clear adjustedPressure_3
-
-DataDir         = 'Data\E5';
-ColumnOrder     = {'time','Sensor','Encoder'};
-col = lines(3);
-
-%% Loading all measurments in DataDir
-%Uncomment for implementing all files in a folder
-%Files=dir(fullfile(DataDir,'*.txt'));nFiles=length(Files);                  % dir gives a directory listing, only *.txt files in this case
-%for i=1:
-%fname       = Files(i).name;  
-%Take a name from the list
-curfilename = fullfile(DataDir,fname(d));                                  % Create the full name
-Data        = ImportData4GB10(curfilename,ColumnOrder);              % Read the data. Type help ImportData4GB10
-% store it for each case. Yes a struct that contains a struct and other
-% things. Why not?
-Case.Data     = Data;
-Case.filename = fname(d);
-Case.DataDir  = DataDir;
-% preamble, put data in easy to use arrays
-t      = Data.t;
-p      = Data.pulse;
-V      = ( (Data.Volt / 5 - 0.115) / 0.0154 );
-RevEnd = Data.RevEnds;
-NRevs  = Data.NRevs;
-
-%Seperatating the different cycles in recorded data
-
-peakDistance = 55; %[* 0.00001 or amount of data entries] excess difference between two peak pressures.
-%This number differs for each file
-%Because the sensor does not measure *exactly* a set number of cycles,
-%There is an excess amount of entries that do not add up to a full cycle
-%If the computation for N is used as stated below, this will mean every
-%cycle is off by some amount of data entries. This number is that amount.
-%Unclear? ask Vito.
-
-
-N = (floor(length(V)/NRevs)) - peakDistance;
-for ii = 1:floor(NRevs/2)
-   LB = (ii-1)*2*N+1;
-   UB = (2*N*ii);   
-   Pressure(:,ii) = V([LB:UB]);
-end
-%Still needs testing made a small improvement to acocunt for all cases   
-check = length(V) - N*NRevs;
-
-%Checking where in the cycle the 
-[~, maxPressureID] = max(Pressure(:,1)); 
-if maxPressureID < RevEnd(1)
-     %requires left shift
-     signPhi = -1;
-else
-     %requires right shift
-     signPhi = 1;
-end
-
-%Determining the corresponding Volume to pressure
-dCa = 360/N;
-Ca(1) = 0;
-Volume(1) = Vcyl(Ca(1), signPhi);
-
-for ii =2:length(Pressure)
-    Ca(ii) = Ca(ii-1) + dCa;
-    Volume(ii) = Vcyl(Ca(ii), signPhi);
-   
-end
-Volume = Volume';
-
-%Accounting the pressure for the drift
-[~ , minVolumeID]=findpeaks(-Volume);
-
- for ii= 1: size(Pressure, 2)
-  
-%       find_variable(ii) = mean(Pressure(find(round(Ca, 0) == 563), ii));
-%      [~, Diff_pressure(ii)] = max(diff(Pressure(:,ii)));
-     minPressure_1(ii) = min(Pressure(minVolumeID, ii));
-%      minPressure_2(ii) = min(Pressure(Diff_pressure(ii), ii));
-     adjustedPressure_1(:,ii) = Pressure(:,ii) - minPressure_1(ii) + 1.05;
-%      adjustedPressure_2(:,ii) = Pressure(:,ii) - minPressure_2(ii) + 1.05;
-%      adjustedPressure_3(:,ii) = Pressure(:,ii) - find_variable(ii) + 1.05;
-end
-
-
-%for graph titles
-%cycles = size(minPressure);
-%cycles = cycles(2);
-
-%%
-figure(1);
-hold on;
-plot(Volume, adjustedPressure_1(:,1));
-% plot(Volume, adjustedPressure_2(:,1));
-% plot(Volume, adjustedPressure_3(:,1));
-%legend("Method 1 (original)", "Method 2", "Method 3");
-grid on;
-grid minor;
-legend(fname);
-xlabel('Volume [cm^3]')
-ylabel('Pressure [bar]')
-
-end
-
-figure(2)
-hold on
-time=Data.t;
-plot(time([1:2*N]), adjustedPressure_1(:,1))
-% plot(time([1:2*N]), adjustedPressure_2(:,1))
-% plot(time([1:2*N]), adjustedPressure_3(:,1))
-
-xlabel('Time [s]')
-ylabel('Pressure [bar]')
-%legend("Method 1 (original)", "Method 2", "Method 3");
-legend(fname);
 %% Constants
 iElements = myfind({Sp.Name},{'C2H5OH','Gasoline','H2O', 'CO2', 'N2', 'O2'});
 Elements = Sp(iElements);
@@ -155,27 +32,28 @@ Mi = [Elements.Mass];
 
 Tamb    = 293;                                  % [K]       Ambient temperature
 Pamb    = 100*kPa;                              % [Pa]      Ambient pressure
-r       = 8.5;
-Vt      = 196*cm3;                              % [m^2]
-Vc      = Vt/r;                                 % [m^2]
-Vd      = Vt-Vc;
+r       = 8.5;                                  % [-]       Compression ratio    
+Vt      = 196*cm3;                              % [m^2]     Total Volume
+Vc      = Vt/r;                                 % [m^2]     Clearance/dead Volume
+Vd      = Vt-Vc;                                % [m^2]     Volume swept away
 
-Xair = [0 0 0 0 0.79 0.21];                 % Molar compisition of air
-Mair = Xair*Mi';                            % Molar mass of air
-Yair = Xair.*Mi/Mair;                       % Mass compisition of air
+Xair = [0 0 0 0 0.79 0.21];                     % Molar compisition of air
+Mair = Xair*Mi';                                % Molar mass of air
+Yair = Xair.*Mi/Mair;                           % Mass compisition of air
+mfurate = 2e-05;                                  % [kg/cyc]  Fuel per otto cycle 
 
-mfurate = 0.1;
+% Volume compisition of fuel 
+% Zfuel  =[0 1 0 0 0 0];                        % E0
+% %Zfuel  =[0.05 0.95 0 0 0 0];                 % E5
+% Zfuel  =[0.1 0.9 0 0 0 0];                    % E10
+Zfuel  =[0.15 0.85 0 0 0 0];                    % E15
 
-%Zfuel  =[0 1 0 0 0 0];             %E0
-%Zfuel  =[0.05 0.95 0 0 0 0];       %E5
-%Zfuel  =[0.1 0.9 0 0 0 0];          %E10
-Zfuel  =[0.15 0.85 0 0 0 0];       %E15
-
-rho_C8H18 = 0.7; %[g/cm^3];
-rho_C2H5OH = 0.79; %[g/cm^3]
+rho_C8H18 = 0.7;                                %[g/cm^3]   Density of Gasoline
+rho_C2H5OH = 0.79;                              %[g/cm^3]   Density of Ethanol
 rho = [rho_C2H5OH, rho_C8H18, 0 0 0 0];
-Yfuel = Zfuel.*rho./(sum(Zfuel.*rho));
+Yfuel = Zfuel.*rho./(sum(Zfuel.*rho));          % Mass compistion of fuel
 Mair = ((12.5*32*Yfuel(2)/114.2285) +(3*32*Yfuel(1))/46)/Yair(6);
+                                                % Fuel Compisition 
 Mfuel = 1;
 AF = Mair/Mfuel;
 
@@ -189,63 +67,64 @@ for i=1:length(Elements);
     ui(:,i) = UNasa(TR, Elements(i));
 end
 
-P0 = Pamb;
-T0 = Tamb;
-p(1)=P0;
-T(1)=T0;
+P0 = 0.537900000000000*10^5;
+T0 = 293;
+p(1)=0.537900000000000*10^5;
+T(1)=300;
 pad(1)=p(1);
 Ca(1)=180;
-%V(1)=Vcyl(Ca(1), Vc, Vd); 
-Volume(1) = Vcyl(Ca(1), signPhi);
-m(1) = 1;
+V(1)=Vcyl(Ca(1), Vc, Vd); 
+m(1) = mfurate*AF +mfurate;
 
-
-%% Vcyl is a function that
-% computes cyl vol as fie of crank-
-% angle for given B,S,l and rc
-%m(1)=p(1)*V(1)/Rg/T(1);
-for i = 340:400
-[~,Qcomb(i)] = HeatReleased(i, AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref);
-end
 %% Loop over crank-angle, with 'for' construction
 NCa=360; % Number of crank-angles
 dCa=0.5; % Stepsize
-%Cv =750;
-%Rg = 300;
 NSteps=NCa/dCa;
-
+pr = 0;
+Tr = 0;
+Vr = 0;
+p1 = p(1);
+V1 = V(1);
 for i=2:NSteps
 
 Ca(i)=Ca(i-1)+dCa;
-%V(i)=Vcyl(Ca(i), Vc, Vd); % New volume for current crank-angle
-V(i)=Vcyl(Ca(i), signPhi);
+V(i)=Vcyl(Ca(i), Vc, Vd); % New volume for current crank-angle
 m(i)=m(i-1); % Mass is constant, valves are closed
 dV=V(i)-V(i-1); % Volume change
-[~,dQcom(i)] = HeatReleased(Ca(i), AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref);
+[~,dQcom(i), dXb(i)] = HeatReleased(Ca(i), AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref);
+if Ca(i) == 345
+    pr = p(i-1);
+    Tr = T(i-1);
+    Vr = V(i-1);
+  
+end
+
 for ii = 1:NElements
        Cp(ii) = CpNasa(T(i-1), Elements(ii));
        Cv(ii) = CvNasa(T(i-1), Elements(ii));
-
 end
 
 Cv_mix(i)= Cv*Y_AF';
 Cp_mix(i)= Cp*Y_AF';
-
 Rg(i) = Cp_mix(i) - Cv_mix(i);
-
-dT=(-dQcom(i)*dCa-p(i-1)*dV)/Cv_mix(i)/m(i-1); % 1st Law dU=dQ-pdV (closed system)
+k(i) = Cp_mix(i)/Cv_mix(i);
+Qloss(i) = HeatLoss(Ca(i), T(i-1), p(i-1), pr, Tr, V(i-1), k(i), p1, V1, Vr);
+Q = -dQcom(i)* dCa + Qloss(i)*(0.04/(720)*dCa);
+dT(i)=(Q-p(i-1)*dV)/Cv_mix(i)/m(i-1); % 1st Law dU=dQ-pdV (closed system)
 
 
 % adiabatic closed system with constant
 % gas composition and constant Cv
-T(i)=T(i-1)+dT;
+T(i)=T(i-1)+dT(i);
 p(i)=m(i)*Rg(i)*T(i)/V(i); % Gaslaw
 end;
-
-figure(6);
-plot(V,p)
+released = HeatReleased(Ca(i), AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref)*mfurate 
+figure(1)
+hold on
+plot(V*10^6, p/(10^5))
 %% efficiency using Cp and Cv, that were calculated with non-constant
 %%temperature
+
 for i=2:NSteps
 gamma(i) = Cp_mix(i)/Cv_mix(i);  %heat capacity ratio
 Eff_otto(i) = 1-(1/r)^(gamma(i)-1); %otto efficiency
@@ -254,35 +133,21 @@ end;
 Efficiency_average = mean(Eff_otto(i))
 
 %% efficiency
-T_cycle = mean(T); %Mean temperature during an cycle
-for i = 1:NElements %Using NASA for specific heat values
-    Cpi(:,i) = CpNasa(T_cycle,Elements(i));
-    Cvi(:,i) = CvNasa(T_cycle,Elements(i));
-end
-Cp = Y_AF*Cpi';  %specific heat at constant pressure for fuel
-Cv = Y_AF*Cvi'; %specific heat at constant volume for fuel
-gamma = Cp/Cv  %heat capacity ratio
-eff_otto = 1-(1/r)^(gamma-1) %otto efficiency
-%% Work
-
-Work_theory=  trapz(V,p)
-
-
-
+% T_cycle = mean(T); %Mean temperature during an cycle
+% for i = 1:NElements %Using NASA for specific heat values
+%     Cpi(:,i) = CpNasa(T_cycle,Elements(i));
+%     Cvi(:,i) = CvNasa(T_cycle,Elements(i));
+% end
+% Cp = Y_AF*Cpi';  %specific heat at constant pressure for fuel
+% Cv = Y_AF*Cvi'; %specific heat at constant volume for fuel
+% gamma = Cp/Cv  %heat capacity ratio
+% eff_otto = 1-(1/r)^(gamma-1) %otto efficiency
+%%
 %eff = trapz(dV,p)/(q_lhv*Mfuel); %Thermal efficiency
-%%
-%write Excel file 
-z= input('What is the fuel type?: E')
-if z==0
-xlswrite('dataE0.xlsx',[V(:),p(:)])
-elseif z==5
-xlswrite('dataE5.xlsx',[V(:),p(:)])
-elseif z==10
-xlswrite('dataE10.xlsx',[V(:),p(:)])
-elseif z==15
-xlswrite('dataE15.xlsx',[V(:),p(:)])
-end
-%%
+
+
+
+
 function V = Vcyl(Ca, Vc, Vd)
 % V         - Volume at give crank angle            - [m^3]
 % Ca        - Crank angle                           - [degree]
@@ -290,8 +155,10 @@ function V = Vcyl(Ca, Vc, Vd)
 % Vd        - Displaced volume                      - [m^3]
 phi = 0;
 V=-Vd/2*cos(Ca*(2*pi/360))+Vc+Vd/2;
+
 end
-function [q_lhv,Qcomb] = HeatReleased(Ca, AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref)
+
+function [q_lhv,Qcomb,dXb] = HeatReleased(Ca, AF, mfurate, Yfuel, Yair, Mi, Runiv, Elements, Tref)
 
 % Qcomb     - Energy released during combustion
 
@@ -340,38 +207,113 @@ for i=1:length(Elements)
     h_comb(i) = HNasa(Tref, Elements(i));
 end
 
-hpre_comb = h_comb*Ypre_comb';
-hafter_comb = h_comb*Yafter_comb';
-q_lhv = hafter_comb - hpre_comb;
+% hpre_comb = h_comb*Ypre_comb';
+% hafter_comb = h_comb*Yafter_comb';
+% q_lhv = hafter_comb - hpre_comb;
+
+
+%TEST
+E=15
+d_octane =  703;                                                           %Density of octane [kg/m^3]
+d_ethanol = 789 ;                                                          %Density of ethanol [kg/m^3]
+d_fuel = (E/100)*d_ethanol + (1-E/100)*d_octane ;                          %Density of fuel [kg/m^3]
+
+Qlhv_gasoline_1 = 44.4e6;                                                  %Lower heating value gasoline [J/kg]
+Qlhv_ethanol_1 = 26.7e6;                                                   %Lower heating value ethanol [J/kg
+
+Qlhv_gasoline_2 = Qlhv_gasoline_1  * d_octane;                             %Lower heating value gasoline [J/m^3]
+Qlhv_ethanol_2 = Qlhv_ethanol_1 * d_ethanol;                               %Lower heating value ethanol [J/m^3]
+Qlhv_fuel_1 =  (1-E/100)* Qlhv_gasoline_2 +(E/100)*Qlhv_ethanol_2;         %Lower heating value fuel [J/m^3]
+q_lhv = -Qlhv_fuel_1/d_fuel; 
+
+
 
 n =3;
 a = 5;
 Theta_d = 35;
 Theta_s = (360-15);
 
-
-
 if Ca >= Theta_s
     Xb = 1 - exp(-a*((Ca-Theta_s)/Theta_d)^n);
-    dQcomb_dTheta = q_lhv*mfurate*n*a*(1-Xb)/Theta_d*((Ca-Theta_s)/Theta_d)^(n-1);
+    dXb = n*a*(1-Xb)/Theta_d*((Ca-Theta_s)/Theta_d)^(n-1);
+    dQcomb_dTheta = q_lhv*mfurate*dXb;
     Qcomb = dQcomb_dTheta*1;
 elseif Ca < Theta_s  
     Qcomb =0;
+    Xb = 0;
+    dXb = 0;
 end 
 end
 
+function Qloss = HeatLoss(Ca, T, p, pr, Tr, V, k, p1, V1, Vr)
+%% variables
+% Ca    - Crank angle [deg]
+% Sp    - Average Piston Speed [m/s]
+% Tr    - temp. start of combustion [K]
+% T     - Instantaneous temp. [K]
+% Tw    - Temperature of the wall [K]
+% pr    - pressure start of combustion [Pa]
+% p1    - Pressure start of adiabatic compression [Pa]
+% V1    - Volume start of adiabatic compression [m^3]
+% Vr    - Volume start of combustion [m^3]
+% pm    - motored cylinder pressure at the same crank angle as 'p' [Pa]
+% p     - Instantaneous pressure [pa] 
+% S     - Lenght of the stroke [m]
+% B     - Bore diameter [m]
+% RpS   - Rotations per second [deg/s]
+% k     - Heat capacity ratio (Cp/Cv) [-]
+% C1,C2 - Constants for in otto cycle
+if pr == 0
+    Qloss =0;
+else
+    if Ca >= 345 && Ca <= 540
+        C1 = 2.28;
+        C2 = 3.24e-03;
+    elseif Ca > 180 && Ca <345
+        C1 = 2.28; 
+        C2 =0;
+    else
+        C1 = 0;
+        C2 = 0;
+    end
 
 
-%%
-function V = Vcyl(Ca, signPhi)
-% V         - Volume at give crank angle            - [m^3]
-% Ca        - Crank angle                           - [degree]
-% Vc        - Clearance volume                      - [m^3]
-% Vd        - Displaced volume                      - [m^3]
 
-r       = 8.5;
-Vt      = 196;                              % [m^2]
-Vc      = Vt/r;                                 % [m^2]
-Vd      = Vt-Vc;
-phi     = signPhi*(360-153.4)/2/pi; %360-
+    % if Ca == INSERT 
+    %     pr = p
+    %     Tr = T
+    % end
+
+    S   = 0.055;        %[m]
+    RpS = 50;
+    Sp  = 2*S*RpS;      %[m/s]
+    B   = 0.067;        %[m]
+    Tw  = 273.15+100;    %%% CHECK %%%
+    %% Computations
+
+    % omega - The flame speed [m/s]
+    % hc    - Heat convection coefficient [w/m^2/K]
+    % h     - Height of the cylinder exposed [m}
+    % A     - Area of the cylinder exposed [m^2]
+    % Qloss - Power lost to the wall [W, J/s]
+    % pm    - Pressure of motored engine [Pa]
+    Vt  = 196*10^(-6);
+    Vc  = Vt/8.5;
+    Vd  = Vt-Vc;
+
+    pm = p1*(V1/V)^k;
+    omega   = C1*Sp + C2*(Vd*Tr)/(pr*Vr)*(p - pm);
+    hc      = 3.26*B^(-0.2)*(p/1000)^(0.8)*T^(-0.55)*omega^(0.8);
+    h       = (V - Vc)/(Vd)*S;
+    A       = pi/2*B^2 + 2*pi*B*h;
+    if T < Tw
+        Qloss = 0;
+    else 
+        Qloss   = hc*A*(T-Tw);
+    end
+    end
 end
+
+
+
+
