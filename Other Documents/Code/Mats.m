@@ -358,7 +358,7 @@ cycle_10 =table2array(T(:,1));
 %cycle_10_single = single(cycle_10);
 
 T2 = table(cycle_1, cycle_6, cycle_10);
-T2.TestAvg = median(T{:,1:end},2);
+T2.TestAvg = mean(T{:,1:end},2);
 average_pressure = table2array(T2(:,4));
 
 figure(3)
@@ -371,6 +371,35 @@ ylabel('Pressure [bar]')
 Work_done_average_pv = trapz(Volume, average_pressure) *10^-1;
 title("Plot of the pV Diagram, E_{15}, half load")
 P0 = min(average_pressure);
+%%
+r=1;
+for r= 1:4046
+row_r = table2array(T(r,:));
+%stderror= std(row)/sqrt(length(row));
+std_r= std(row_r);
+upper(:,r)= mean(row_r)+ std_r;
+lower(:,r)= mean(row_r)- std_r;
+end
+
+figure(4);
+plot(Volume,upper(:,:))
+hold on
+plot(Volume, lower(:,:))
+hold on 
+plot(Volume, average_pressure)
+
+Work_done_average_pv = trapz(Volume, average_pressure) *-10^-1 %[J]
+Work_done_lower = trapz(Volume, lower(:,:)) *-10^-1 %[J]
+Work_done_upper = trapz(Volume, upper(:,:)) *-10^-1 %[J]
+
+workerr_low= Work_done_average_pv - Work_done_lower %[J]
+workerr_upper= Work_done_average_pv - Work_done_upper %[J]
+
+%  85 +/- 7 [J]
+%plot(Volume,upper())
+%%
+%err=0.1*ones(size(average_pressure));
+%errorbar(Volume, average_pressure,err)
 %%
 %Theory + measurements
 

@@ -129,6 +129,8 @@ Volume = Volume';
      adjustedPressure_1(:,ii) = Pressure(:,ii) - minPressure_1(ii) + 1.05;
      adjustedPressure_2(:,ii) = Pressure(:,ii) - minPressure_2(ii) + 1.05;
      adjustedPressure_3(:,ii) = Pressure(:,ii) - find_variable(ii) + 1.05;
+     
+     
 end
 
 

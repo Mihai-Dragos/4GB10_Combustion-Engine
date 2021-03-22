@@ -5,7 +5,7 @@ clc
 %%
 %run('Real_script.m');
 
-fname= ["E15-FULL-10.txt"];
+fname= ["E15_hl.txt"];
 
 %fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt"];
 %fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
@@ -75,7 +75,7 @@ NRevs  = Data.NRevs;
 
 %Seperatating the different cycles in recorded data
 
-peakDistance =  %[* 0.00001 or amount of data entries] excess difference between two peak pressures.
+peakDistance = 110 %[* 0.00001 or amount of data entries] excess difference between two peak pressures.
 %This number differs for each file
 %Because the sensor does not measure *exactly* a set number of cycles,
 %There is an excess amount of entries that do not add up to a full cycle
@@ -350,11 +350,11 @@ legend(fname);
 
 T = array2table(adjustedPressure_3);
 
-cycle_6 = table2array(T(:,1));
+cycle_6 = table2array(T(:,10));
 %cycle_6_single = single(cycle_6);
 cycle_1 = table2array(T(:,7));
 %cycle_1_single = single(cycle_1);
-cycle_10 =table2array(T(:,10));
+cycle_10 =table2array(T(:,1));
 %cycle_10_single = single(cycle_10);
 
 T2 = table(cycle_1, cycle_6, cycle_10);
@@ -362,14 +362,42 @@ T2.TestAvg = median(T{:,1:end},2);
 average_pressure = table2array(T2(:,4));
 
 figure(3)
+hold on
 plot(Volume, average_pressure)
 grid on;
 grid minor;
 xlabel('Volume [cm^3]')
 ylabel('Pressure [bar]')
 Work_done_average_pv = trapz(Volume, average_pressure) *10^-1;
-title("Plot of the pV Diagram, E_{15}, full load")
+title("Plot of the pV Diagram, E_{15}, half load")
 P0 = min(average_pressure);
+%%
+r=1;
+for r= 1:4046
+row_r = table2array(T(r,:));
+%stderror= std(row)/sqrt(length(row));
+std_r= std(row_r);
+upper(:,r)= mean(row_r)+ std_r;
+lower(:,r)= mean(row_r)- std_r;
+end
+
+figure(4);
+plot(Volume,upper(:,:))
+hold on
+plot(Volume, lower(:,:))
+hold on 
+plot(Volume, average_pressure)
+
+Work_done_average_pv = trapz(Volume, average_pressure) *-10^-1 %[J]
+Work_done_lower = trapz(Volume, lower(:,:)) *-10^-1 %[J]
+Work_done_upper = trapz(Volume, upper(:,:)) *-10^-1 %[J]
+
+Work_done_average_pv 
+
+%plot(Volume,upper())
+%%
+%err=0.1*ones(size(average_pressure));
+%errorbar(Volume, average_pressure,err)
 %%
 %Theory + measurements
 
