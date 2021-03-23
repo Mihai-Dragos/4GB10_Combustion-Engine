@@ -358,7 +358,7 @@ cycle_10 =table2array(T(:,1));
 %cycle_10_single = single(cycle_10);
 
 T2 = table(cycle_1, cycle_6, cycle_10);
-T2.TestAvg = median(T{:,1:end},2);
+T2.TestAvg = mean(T{:,1:end},2);
 average_pressure = table2array(T2(:,4));
 
 figure(3)
@@ -392,8 +392,13 @@ Work_done_average_pv = trapz(Volume, average_pressure) *-10^-1 %[J]
 Work_done_lower = trapz(Volume, lower(:,:)) *-10^-1 %[J]
 Work_done_upper = trapz(Volume, upper(:,:)) *-10^-1 %[J]
 
-Work_done_average_pv 
+workerr_low= Work_done_average_pv - Work_done_lower %[J]
+workerr_upper= Work_done_average_pv - Work_done_upper %[J]
 
+effeciency_therm= 
+
+
+%  85 +/- 7 [J]
 %plot(Volume,upper())
 %%
 %err=0.1*ones(size(average_pressure));

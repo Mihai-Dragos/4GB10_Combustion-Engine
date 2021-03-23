@@ -11,7 +11,13 @@ fname= ["E15_hl.txt"];
 %fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
    % , "E15_no_load_1.txt","E15_no_load_2.txt","E15_no_load_3.txt","E15_no_load_4.txt","E15_no_load_5.txt"];
 
+Qlhv_mix_E0=4.3583e+07; %J/kg
+Qlhv_mix_E5=4.2695e+07; %J/kg
+Qlhv_mix_E10=300; %J/kg
+Qlhv_mix_E15=312.2782 ; %J/kg
 
+   
+   
 % fname(1)="E5_Full_load_1.txt";
 % fname(2)="E5_Half_load_1.txt";
 %file=['Data\E5','Data\E10']
@@ -387,6 +393,10 @@ hold on
 plot(Volume, lower(:,:))
 hold on 
 plot(Volume, average_pressure)
+xlabel('Volume [cm^3]')
+ylabel('Pressure [bar]')
+legend('Upper bound','Lower bound','Mean value')
+
 
 Work_done_average_pv = trapz(Volume, average_pressure) *-10^-1 %[J]
 Work_done_lower = trapz(Volume, lower(:,:)) *-10^-1 %[J]
@@ -395,11 +405,21 @@ Work_done_upper = trapz(Volume, upper(:,:)) *-10^-1 %[J]
 workerr_low= Work_done_average_pv - Work_done_lower %[J]
 workerr_upper= Work_done_average_pv - Work_done_upper %[J]
 
+effeciency_therm= Work_done_average_pv/Qlhv_mix_E15
+
+errorwork=workerr_low
+
+%errorwork_1_digitmore=round(workerr_low,1);
+
+error_eff= errorwork/Qlhv_mix_E15
+
+%error_effeciency= round(error_eff,7)
 %  85 +/- 7 [J]
 %plot(Volume,upper())
 %%
-%err=0.1*ones(size(average_pressure));
-%errorbar(Volume, average_pressure,err)
+% figure(5);
+% err=0.3*ones(size(average_pressure));
+% errorbar(Volume, average_pressure,err)
 %%
 %Theory + measurements
 
