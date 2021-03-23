@@ -5,7 +5,7 @@ clc
 %%
 %run('Real_script.m');
 
-fname= ["E15_hl.txt"];
+fname= ["E0_fl.txt"];
 
 %fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt"];
 %fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
@@ -33,7 +33,7 @@ for d= [1]
 %  if d <11
 %fname(d);
 
-DataDir         = 'DATA_Mihai_Mats\E15';
+DataDir         = 'DATA_Mihai_Mats\E0';
 %  else
 
 %DataDir = 'Data\E15';
@@ -81,7 +81,7 @@ NRevs  = Data.NRevs;
 
 %Seperatating the different cycles in recorded data
 
-peakDistance = 110 %[* 0.00001 or amount of data entries] excess difference between two peak pressures.
+peakDistance = 20 %[* 0.00001 or amount of data entries] excess difference between two peak pressures.
 %This number differs for each file
 %Because the sensor does not measure *exactly* a set number of cycles,
 %There is an excess amount of entries that do not add up to a full cycle
@@ -375,11 +375,11 @@ grid minor;
 xlabel('Volume [cm^3]')
 ylabel('Pressure [bar]')
 Work_done_average_pv = trapz(Volume, average_pressure) *10^-1;
-title("Plot of the pV Diagram, E_{15}, half load")
+title("Plot of the pV Diagram, E_{0}, full load")
 P0 = min(average_pressure);
 %%
 r=1;
-for r= 1:4046
+for r= 1:4246
 row_r = table2array(T(r,:));
 %stderror= std(row)/sqrt(length(row));
 std_r= std(row_r);
@@ -401,9 +401,14 @@ legend('Upper bound','Lower bound','Mean value')
 Work_done_average_pv = trapz(Volume, average_pressure) *-10^-1 %[J]
 Work_done_lower = trapz(Volume, lower(:,:)) *-10^-1 %[J]
 Work_done_upper = trapz(Volume, upper(:,:)) *-10^-1 %[J]
-
+grid on;
+grid minor;
 workerr_low= Work_done_average_pv - Work_done_lower %[J]
 workerr_upper= Work_done_average_pv - Work_done_upper %[J]
+xlabel('Volume [cm^3]')
+ylabel('Pressure [bar]')
+title("Plot of the pV Diagram, showing the error analysis using Standard Deviation, for the E_{0}, full load")
+legend("Upper approximation using standard deviation", "Lower approximation using standard deviation",  "Average plot")
 
 effeciency_therm= Work_done_average_pv/Qlhv_mix_E15
 
