@@ -40,7 +40,7 @@ p1          = 0.5*bara;                                                     % Ta
 T1          = Tref;                                                         % Starting Temperature [K]
 V1          = Vcyl(180, Vc, Vd)                                             % Starting Volume [m^3] 
 
-E           = 10;                                                           % E number of fuel [%]
+E           = 0;                                                           % E number of fuel [%]
 rhoC8H18    = 0.7;                                                          % Density of Gasoline [g/cm^3] 
 rhoC2H5OH   = 0.79;                                                         % Density of Ethanol [g/cm^3] 
 rhoFuel     = [rhoC2H5OH, rhoC8H18, 0, 0, 0, 0];

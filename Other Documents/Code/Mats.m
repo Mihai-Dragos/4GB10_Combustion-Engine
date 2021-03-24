@@ -11,10 +11,10 @@ fname= ["E0_fl.txt"];
 %fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
    % , "E15_no_load_1.txt","E15_no_load_2.txt","E15_no_load_3.txt","E15_no_load_4.txt","E15_no_load_5.txt"];
 
-Qlhv_mix_E0=4.3583e+07; %J/kg
-Qlhv_mix_E5=4.2695e+07; %J/kg
-Qlhv_mix_E10=300; %J/kg
-Qlhv_mix_E15=312.2782 ; %J/kg
+Qlhv_mix_E0=4.3583e+07; %J
+Qlhv_mix_E5=4.2695e+07; %J
+Qlhv_mix_E10=300; %J
+Qlhv_mix_E15=312.2782 ; %J
 
    
    
@@ -382,9 +382,11 @@ r=1;
 for r= 1:4246
 row_r = table2array(T(r,:));
 %stderror= std(row)/sqrt(length(row));
-std_r= std(row_r);
+std_r= 2*std(row_r);
 upper(:,r)= mean(row_r)+ std_r;
 lower(:,r)= mean(row_r)- std_r;
+minimum(:,r)=min(row_r);
+maximum(:,r)=max(row_r);
 end
 
 figure(4);
@@ -393,9 +395,13 @@ hold on
 plot(Volume, lower(:,:))
 hold on 
 plot(Volume, average_pressure)
+hold on
+plot(Volume, minimum(:,:))
+hold on
+plot(Volume, maximum(:,:))
 xlabel('Volume [cm^3]')
 ylabel('Pressure [bar]')
-legend('Upper bound','Lower bound','Mean value')
+%legend('Upper bound','Lower bound','Mean value')
 
 
 Work_done_average_pv = trapz(Volume, average_pressure) *-10^-1 %[J]
@@ -408,7 +414,7 @@ workerr_upper= Work_done_average_pv - Work_done_upper %[J]
 xlabel('Volume [cm^3]')
 ylabel('Pressure [bar]')
 title("Plot of the pV Diagram, showing the error analysis using Standard Deviation, for the E_{0}, full load")
-legend("Upper approximation using standard deviation", "Lower approximation using standard deviation",  "Average plot")
+legend("Upper approximation using standard deviation", "Lower approximation using standard deviation",  "Average plot","Minimum value", "Maximum value")
 
 effeciency_therm= Work_done_average_pv/Qlhv_mix_E15
 
@@ -421,6 +427,11 @@ error_eff= errorwork/Qlhv_mix_E15
 %error_effeciency= round(error_eff,7)
 %  85 +/- 7 [J]
 %plot(Volume,upper())
+
+%%
+
+xlswrite('E0_fl.xlsx',[Volume(:),average_pressure(:)]);
+
 %%
 % figure(5);
 % err=0.3*ones(size(average_pressure));
