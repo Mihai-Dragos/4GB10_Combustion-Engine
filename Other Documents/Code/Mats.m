@@ -5,7 +5,7 @@ clc
 %%
 %run('Real_script.m');
 
-fname= ["E0_fl.txt"];
+fname= ["E5_hl.txt"];
 
 %fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt"];
 %fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
@@ -16,7 +16,7 @@ Q_comb_E0_HL=339.6064; %J
 Q_comb_E0_NL=257.1777; %J
 
 Q_comb_E5_FL=618.2156; %J
-Q_comb_E5_HL=0;
+Q_comb_E5_HL=420.1909; %J
 Q_comb_E5_NL=280.6699; %J
 
 Q_comb_E10_FL=663.5514;
@@ -44,7 +44,7 @@ for d= [1]
 %  if d <11
 %fname(d);
 
-DataDir         = 'DATA_Mihai_Mats\E0';
+DataDir         = 'DATA_Mihai_Mats\E5';
 %  else
 
 %DataDir = 'Data\E15';
@@ -92,7 +92,7 @@ NRevs  = Data.NRevs;
 
 %Seperatating the different cycles in recorded data
 
-peakDistance = 20 %[* 0.00001 or amount of data entries] excess difference between two peak pressures.
+peakDistance = 55 %[* 0.00001 or amount of data entries] excess difference between two peak pressures.
 %This number differs for each file
 %Because the sensor does not measure *exactly* a set number of cycles,
 %There is an excess amount of entries that do not add up to a full cycle
@@ -390,7 +390,7 @@ title("Plot of the pV Diagram, E_{0}, full load")
 P0 = min(average_pressure);
 %%
 r=1;
-for r= 1:4246
+for r= 1:4046
 row_r = table2array(T(r,:));
 %stderror= std(row)/sqrt(length(row));
 std_r= 2*std(row_r);
@@ -427,13 +427,13 @@ ylabel('Pressure [bar]')
 title("Plot of the pV Diagram, showing the error analysis using Standard Deviation, for the E_{0}, full load")
 legend("Upper approximation using 2 times the standard deviation", "Lower approximation using 2 times the standard deviation",  "Average plot","Minimum value", "Maximum value")
 
-effeciency_therm= Work_done_average_pv/Q_comb_E0_FL
+effeciency_therm= Work_done_average_pv/Q_comb_E5_HL
 
 errorwork=workerr_low;
 
 %errorwork_1_digitmore=round(workerr_low,1);
 
-error_eff= errorwork/Q_comb_E0_FL
+error_eff= errorwork/Q_comb_E5_HL
 
 %error_effeciency= round(error_eff,7)
 %  85 +/- 7 [J]
