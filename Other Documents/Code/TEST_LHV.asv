@@ -221,16 +221,9 @@ Q_comb_E0_HL=Qlhv_mix*mass_cycle_E0_HL
 Q_comb_E0_NL=Qlhv_mix*mass_cycle_E0_NL
 
 Q_comb_E5_FL=Qlhv_mix*mass_cycle_E5_FL
-Q_comb_E5_HL=Qlhv_mix*mass_cycle_E5_HL
+Q_comb_E5_HL=Qlhv_mix*mass_cycle_E5_FL
 Q_comb_E5_NL=Qlhv_mix*mass_cycle_E5_NL
 
-Q_comb_E10_FL=Qlhv_mix*mass_cycle_E10_FL
-Q_comb_E10_HL=Qlhv_mix*mass_cycle_E10_HL
-Q_comb_E10_NL=Qlhv_mix*mass_cycle_E10_NL
-
-Q_comb_E15_FL=Qlhv_mix*mass_cycle_E15_FL
-Q_comb_E15_HL=Qlhv_mix*mass_cycle_E15_HL
-Q_comb_E15_NL=Qlhv_mix*mass_cycle_E15_NL
 
 
 %% Functions

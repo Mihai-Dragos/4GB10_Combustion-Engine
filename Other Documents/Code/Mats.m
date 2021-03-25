@@ -11,10 +11,21 @@ fname= ["E0_fl.txt"];
 %fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
    % , "E15_no_load_1.txt","E15_no_load_2.txt","E15_no_load_3.txt","E15_no_load_4.txt","E15_no_load_5.txt"];
 
-Qlhv_mix_E0=4.3583e+07; %J
-Qlhv_mix_E5=4.2695e+07; %J
-Qlhv_mix_E10=300; %J
-Qlhv_mix_E15=312.2782 ; %J
+Q_comb_E0_FL=498.6939; %J
+Q_comb_E0_HL=339.6064; %J
+Q_comb_E0_NL=257.1777; %J
+
+Q_comb_E5_FL=618.2156; %J
+Q_comb_E5_HL=0;
+Q_comb_E5_NL=280.6699; %J
+
+Q_comb_E10_FL=663.5514;
+Q_comb_E10_HL=511.0582;
+Q_comb_E10_NL=386.1787;
+
+Q_comb_E15_FL=713.0087;
+Q_comb_E15_HL=572.8798;
+Q_comb_E15_NL=373.4022;
 
    
    
@@ -414,15 +425,15 @@ workerr_upper= Work_done_average_pv - Work_done_upper %[J]
 xlabel('Volume [cm^3]')
 ylabel('Pressure [bar]')
 title("Plot of the pV Diagram, showing the error analysis using Standard Deviation, for the E_{0}, full load")
-legend("Upper approximation using standard deviation", "Lower approximation using standard deviation",  "Average plot","Minimum value", "Maximum value")
+legend("Upper approximation using 2 times the standard deviation", "Lower approximation using 2 times the standard deviation",  "Average plot","Minimum value", "Maximum value")
 
-effeciency_therm= Work_done_average_pv/Qlhv_mix_E15
+effeciency_therm= Work_done_average_pv/Q_comb_E0_FL
 
-errorwork=workerr_low
+errorwork=workerr_low;
 
 %errorwork_1_digitmore=round(workerr_low,1);
 
-error_eff= errorwork/Qlhv_mix_E15
+error_eff= errorwork/Q_comb_E0_FL
 
 %error_effeciency= round(error_eff,7)
 %  85 +/- 7 [J]
