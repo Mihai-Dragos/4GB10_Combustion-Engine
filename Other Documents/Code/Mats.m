@@ -5,7 +5,7 @@ clc
 %%
 %run('Real_script.m');
 
-fname= ["E5_hl.txt"];
+fname= ["E0_hl.txt"];
 
 %fname= ["E5_Full_load_1.txt","E5_Full_load_2.txt","E5_Full_load_3.txt","E5_Full_load_4.txt","E5_Full_load_5.txt","E5_Half_load_1.txt","E5_Half_load_2.txt","E5_Half_load_3.txt","E5_Half_load_4.txt","E5_Half_load_5.txt","E5_N0_load_1.txt","E5_N0_load_2.txt","E5_N0_load_3.txt","E5_N0_load_4.txt","E5_N0_load_5.txt"];
 %fname=  ["E15_Full_loaf_1.txt","E15_Full_loaf_2.txt","E15_Full_loaf_3.txt","E15_Full_loaf_4.txt","E15_Full_loaf_5.txt","E15_Full_loaf_6.txt","E15_half_load_1.txt","E15_half_load_2.txt","E15_half_load_3.txt","E15_half_load_4.txt","E15_half_load_5.txt"];
@@ -44,7 +44,7 @@ for d= [1]
 %  if d <11
 %fname(d);
 
-DataDir         = 'DATA_Mihai_Mats\E5';
+DataDir         = 'DATA_Mihai_Mats\E0';
 %  else
 
 %DataDir = 'Data\E15';
@@ -92,7 +92,7 @@ NRevs  = Data.NRevs;
 
 %Seperatating the different cycles in recorded data
 
-peakDistance = 55 %[* 0.00001 or amount of data entries] excess difference between two peak pressures.
+peakDistance = 105 %[* 0.00001 or amount of data entries] excess difference between two peak pressures.
 %This number differs for each file
 %Because the sensor does not measure *exactly* a set number of cycles,
 %There is an excess amount of entries that do not add up to a full cycle
@@ -390,7 +390,7 @@ title("Plot of the pV Diagram, E_{0}, full load")
 P0 = min(average_pressure);
 %%
 r=1;
-for r= 1:4046
+for r= 1:4100
 row_r = table2array(T(r,:));
 %stderror= std(row)/sqrt(length(row));
 std_r= 2*std(row_r);
@@ -407,9 +407,9 @@ plot(Volume, lower(:,:))
 hold on 
 plot(Volume, average_pressure)
 hold on
-plot(Volume, minimum(:,:))
-hold on
-plot(Volume, maximum(:,:))
+% plot(Volume, minimum(:,:))
+% hold on
+% plot(Volume, maximum(:,:))
 xlabel('Volume [cm^3]')
 ylabel('Pressure [bar]')
 %legend('Upper bound','Lower bound','Mean value')
@@ -425,15 +425,15 @@ workerr_upper= Work_done_average_pv - Work_done_upper %[J]
 xlabel('Volume [cm^3]')
 ylabel('Pressure [bar]')
 title("Plot of the pV Diagram, showing the error analysis using Standard Deviation, for the E_{0}, full load")
-legend("Upper approximation using 2 times the standard deviation", "Lower approximation using 2 times the standard deviation",  "Average plot","Minimum value", "Maximum value")
+legend("Upper approximation using 2 times the standard deviation", "Lower approximation using 2 times the standard deviation",  "Average plot")%"Minimum value", "Maximum value")
 
-effeciency_therm= Work_done_average_pv/Q_comb_E5_HL
+effeciency_therm= Work_done_average_pv/Q_comb_E0_HL
 
 errorwork=workerr_low;
 
 %errorwork_1_digitmore=round(workerr_low,1);
 
-error_eff= errorwork/Q_comb_E5_HL
+error_eff= errorwork/Q_comb_E0_HL
 
 %error_effeciency= round(error_eff,7)
 %  85 +/- 7 [J]
