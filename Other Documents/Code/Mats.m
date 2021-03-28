@@ -441,7 +441,8 @@ error_eff= errorwork/Q_comb_E0_HL
 
 %%
 
-xlswrite('E0_fl.xlsx',[Volume(:),average_pressure(:)]);
+xlswrite('E0_nl.xlsx',[Volume(:),average_pressure(:),upper(:),lower(:),minimum(:),maximum(:)]);
+
 
 %%
 % figure(5);
